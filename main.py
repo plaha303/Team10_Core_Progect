@@ -29,6 +29,11 @@ def hello():
 @input_error
 def add_contact():
     name = Name(input("Enter the name: "))
+
+    rec: Record = address_book.get(str(name))
+    if rec:
+        return "Contact already exists. Use 'edit phone', 'edit birthday', etc., to modify the contact."
+
     phone_input = input("Enter the phone number (10 digits), or leave empty: ")
     while phone_input and (not phone_input.isdigit() or len(phone_input) != 10):
         print("Invalid phone number. Please enter a 10-digit number.")
@@ -47,14 +52,6 @@ def add_contact():
     address = Address(address_input) if address_input else None
     email = Email(email_input) if email_input else None
 
-    rec: Record = address_book.get(str(name))
-    if rec:
-        rec.add_phone(phone)
-        if birthday:
-            rec.add_birthday(birthday)
-        rec.address = address
-        rec.email = email
-        return f"Phone number {phone} and birthday {birthday} added for contact {name}."
     rec = Record(name, phone, birthday, address, email)
     address_book.add_record(rec)
     return f"Contact {name} successfully added."
@@ -69,6 +66,37 @@ def del_phone():
         return f"The phone number {phone} has been removed from the contact {name}."
     return f"No contact {name} in address book"
 
+
+@input_error
+def add_phone():
+    name = Name(input("Enter the name: "))
+    rec: Record = address_book.get(str(name))
+    if rec:
+        phone_input = input("Enter the new phone number (10 digits): ")
+        while not phone_input.isdigit() or len(phone_input) != 10:
+            print("Invalid phone number. Please enter a 10-digit number.")
+            phone_input = input("Enter the new phone number (10 digits): ")
+
+        new_phone = Phone(phone_input)
+        rec.add_phone(new_phone)
+        return f"Phone number {new_phone} added to contact {name}."
+    return f"No contact {name} in the address book"
+
+
+@input_error
+def edit_phone():
+    name = Name(input("Enter the name: "))
+    rec: Record = address_book.get(str(name))
+    if rec:
+        phone_input = input("Enter the new phone number (10 digits): ")
+        while not phone_input.isdigit() or len(phone_input) != 10:
+            print("Invalid phone number. Please enter a 10-digit number.")
+            phone_input = input("Enter the new phone number (10 digits): ")
+
+        new_phone = Phone(phone_input)
+        rec.add_phone(new_phone)
+        return f"Phone number {new_phone} added to contact {name}."
+    return f"No contact {name} in address book"
 
 @input_error
 def change_phone():
@@ -132,8 +160,11 @@ def show_all():
             break
 
         for record in records_batch:
-            birthday_info = f", Birthday: {record.birthday.value}" if record.birthday else ""
-            print(f"Name: {record.name}, Phones: {', '.join(str(phone) for phone in record.phones)}{birthday_info}")
+            birthday_info = f"Birthday: {record.birthday.value}" if record.birthday else ""
+            phones_info = f"Phones: {', '.join(str(phone) for phone in record.phones)}"
+            address_info = f"Address: {record.address.value}" if record.address else ""
+            email_info = f"Email: {record.email.value}" if record.email else ""
+            print(f"Name: {record.name}; {phones_info}; {birthday_info}; {address_info}; {email_info}")
 
         print("\nPage:", page_number)
         print("Press Enter to see the next page or type 'exit' to return to the main menu.")
@@ -165,12 +196,13 @@ def helper():
     commands = {
         hello: "hello -> displays a welcome message.",
         add_contact: "add -> adds a new contact.",
-        add_birthday: "birthday -> adds birthday to contact",
-        edit_birthday: "edit bd -> changes the existing birthday value of a contact",
-        days_to_birthday: "days -> shows how many days are left until the birthday",
-        change_phone: "change -> changes the phone number of an existing contact.",
-        del_phone: "del -> delete number from contact.",
-        # get_phone: "phone -> displays the phone number of a contact.",
+        add_birthday: " add birthday -> adds birthday to contact",
+        edit_birthday: "edit birthday -> changes the existing birthday value of a contact",
+        days_to_birthday: "days to birthday -> shows how many days are left until the birthday",
+        edit_phone: "edit phone -> changes the phone number of an existing contact.",
+        del_phone: "del phone -> delete number from contact.",
+        add_phone: "add phone -> adds phone to exist contact",
+        change_phone: "change phone -> replaces the old number with a new one",
         show_all: "show all -> displays all contacts and their phone numbers.",
         search_by_name: "search by name -> searches for contacts in which the name coincides",
         search_by_phone: "search by phone -> looking for contacts with a matching phone number",
@@ -203,12 +235,12 @@ def main():
     commands = {
         "hello": hello,
         "add": add_contact,
-        "birthday": add_birthday,
-        "edit bd": edit_birthday,
-        "days": days_to_birthday,
-        "change": change_phone,
-        "del": del_phone,
-        # "phone": get_phone,
+        "add birthday": add_birthday,
+        "edit birthday": edit_birthday,
+        "days to birthday": days_to_birthday,
+        "edit phone": edit_phone,
+        "del phone": del_phone,
+        "change phone": change_phone,
         "show all": show_all,
         "search by name": search_by_name,
         "search by phone": search_by_phone,
