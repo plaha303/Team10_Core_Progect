@@ -71,6 +71,9 @@ class Record:
             else:
                 self.birthday.value = birthday.value
 
+    def add_birthday(self, birthday: Birthday):
+        self.birthday = birthday
+
     @staticmethod
     def is_valid_birthday_format(value):
         try:
