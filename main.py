@@ -1,6 +1,7 @@
 import pickle
+import difflib
 
-from classes import AddressBook, Name, Phone, Record, Birthday
+from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email
 
 address_book = AddressBook()
 
@@ -28,30 +29,33 @@ def hello():
 @input_error
 def add_contact():
     name = Name(input("Enter the name: "))
-
-    while True:
-        phone_input = input("Enter the phone number (10 digits), or leave empty: ")
-        if not phone_input or (phone_input.isdigit() and len(phone_input) == 10):
-            break
+    phone_input = input("Enter the phone number (10 digits), or leave empty: ")
+    while phone_input and (not phone_input.isdigit() or len(phone_input) != 10):
         print("Invalid phone number. Please enter a 10-digit number.")
+        phone_input = input("Enter the phone number (10 digits), or leave empty: ")
 
-    while True:
-        birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
-        if not birthday_input or Record.is_valid_birthday_format(birthday_input):
-            break
+    birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
+    while birthday_input and not Record.is_valid_birthday_format(birthday_input):
         print("Incorrect birthday format. Please use the format DD.MM.YYYY.")
+        birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
+
+    address_input = input("Enter the address, or leave empty: ")
+    email_input = input("Enter the email, or leave empty: ")
 
     phone = Phone(phone_input) if phone_input else None
     birthday = Birthday(birthday_input) if birthday_input else None
+    address = Address(address_input) if address_input else None
+    email = Email(email_input) if email_input else None
 
     rec: Record = address_book.get(str(name))
     if rec:
         rec.add_phone(phone)
         if birthday:
             rec.add_birthday(birthday)
-            return f"Phone number {phone} and birthday {birthday} added for contact {name}."
-        return f"Phone number {phone} added for contact {name}."
-    rec = Record(name, phone, birthday)
+        rec.address = address
+        rec.email = email
+        return f"Phone number {phone} and birthday {birthday} added for contact {name}."
+    rec = Record(name, phone, birthday, address, email)
     address_book.add_record(rec)
     return f"Contact {name} successfully added."
 
@@ -179,6 +183,14 @@ def helper():
     return help_text
 
 
+def find_closest_command(text, commands):
+    available_commands = list(commands.keys())
+    closest_command = difflib.get_close_matches(text.lower(), available_commands, n=1)
+    if closest_command and closest_command[0] != text.lower():
+        return closest_command[0]
+    return None
+
+
 def main():
     file_path = 'address_book.pkl'
 
@@ -209,19 +221,17 @@ def main():
     while True:
         command = input("Enter a command: ").lower()
 
-        if command in commands:
-            if command in ["exit", "good bye", "close"]:
-                print("Good bye!")
-                break
-            elif command == "help":
-                print(commands[command]())
-            else:
+        closest_command = find_closest_command(command, commands)
+        if closest_command:
+            print(f"Did you mean '{closest_command}'")
+        else:
+            if command in commands:
                 func = commands[command]
                 print(func())
-        else:
-            print("Invalid command. Please try again.")
+            else:
+                print("Invalid command. Please try again.")
 
-    address_book.save_to_file(file_path)
+        address_book.save_to_file(file_path)
 
 
 if __name__ == "__main__":
