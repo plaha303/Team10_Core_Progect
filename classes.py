@@ -59,6 +59,44 @@ class Email(Field):
     pass
 
 
+class Note:
+    def __init__(self, text, tag=None):
+        self.text = text
+        self.tag_list = [tag] if tag else []
+
+    def add_tag(self, tag):
+        if tag not in self.tag_list:
+            self.tag_list.append(tag)
+            self.tag_list.sort()
+
+    def __repr__(self) -> str:
+        return str(self.text)
+
+    def __eq__(self, other):
+        return self.text == other.text
+
+class NotePad:
+    def __init__(self):
+        self.note_list = []
+
+    def add_note(self, note):
+        self.note_list.append(note)
+
+    def change_note(self, note, new_text):
+        for rec in self.note_list:
+            if note == rec:
+                rec.text = new_text
+
+    def delete(self, note):
+        self.note_list.remove(note)
+
+    def search_by_tag(self, tag):
+        return [note for note in self.note_list if tag in note.tag_list]
+
+    def sorting(self):
+        self.note_list.sort(key=lambda note: len(note.tag_list), reverse=True)
+
+
 class Record:
     def __init__(self, name: Name,
                  phone: Phone = None,
