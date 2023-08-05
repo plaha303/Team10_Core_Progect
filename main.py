@@ -44,10 +44,13 @@ def add_contact():
     phone = Phone(phone_input) if phone_input else None
     birthday = Birthday(birthday_input) if birthday_input else None
 
-    rec = address_book.get(str(name))
+    rec: Record = address_book.get(str(name))
     if rec:
-        rec.add_contact(phone, birthday)
-        return f"Phone number and/or birthday updated for contact {name}."
+        rec.add_phone(phone)
+        if birthday:
+            rec.add_birthday(birthday)
+            return f"Phone number {phone} and birthday {birthday} added for contact {name}."
+        return f"Phone number {phone} added for contact {name}."
     rec = Record(name, phone, birthday)
     address_book.add_record(rec)
     return f"Contact {name} successfully added."
