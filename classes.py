@@ -51,13 +51,27 @@ class Birthday(Field):
             return datetime.strptime(self._value, "%d.%m.%Y")
 
 
+class Address(Field):
+    pass
+
+
+class Email(Field):
+    pass
+
+
 class Record:
-    def __init__(self, name: Name, phone: Phone = None, birthday: Birthday = None):
+    def __init__(self, name: Name,
+                 phone: Phone = None,
+                 birthday: Birthday = None,
+                 address: Address = None,
+                 email: Email = None):
         self.name = name
         self.phones = []
         if phone:
             self.phones.append(phone)
         self.birthday = birthday
+        self.address = address
+        self.email = email
 
     def add_phone(self, phone=None, birthday=None):
         if phone and phone.value not in [p.value for p in self.phones]:
@@ -70,6 +84,9 @@ class Record:
                 self.birthday = birthday
             else:
                 self.birthday.value = birthday.value
+
+    def add_birthday(self, birthday: Birthday):
+        self.birthday = birthday
 
     @staticmethod
     def is_valid_birthday_format(value):
