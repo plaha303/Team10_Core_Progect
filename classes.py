@@ -62,18 +62,38 @@ class Email(Field):
 class Note:
     def __init__(self, text, tag=None):
         self.text = text
-        self.tag_list = [tag] if tag else []
+        self.tag_list = [HashTag(tag)] if tag else []
 
     def add_tag(self, tag):
-        if tag not in self.tag_list:
-            self.tag_list.append(tag)
-            self.tag_list.sort()
+        tag_obj = HashTag(tag)
+        if tag_obj not in self.tag_list:
+            self.tag_list.append(tag_obj)
+            self.tag_list.sort(key=lambda x: x.tag)
 
     def __repr__(self) -> str:
         return str(self.text)
 
     def __eq__(self, other):
         return self.text == other.text
+    
+    def from_string(string):
+        text, *tags = string.strip().split(';')
+        return Note(text, [HashTag(tag) for tag in tags])
+
+    def to_string(self):
+        return f"{self.text};{';'.join([tag.tag for tag in self.tag_list])}"
+
+    
+class HashTag:
+    def __init__(self, tag):
+        self.tag = tag
+
+    def __eq__(self, other):
+        return self.tag == other.tag
+
+    def __repr__(self):
+        return f"#{self.tag}"
+
 
 class NotePad:
     def __init__(self):
@@ -91,11 +111,24 @@ class NotePad:
         self.note_list.remove(note)
 
     def search_by_tag(self, tag):
-        return [note for note in self.note_list if tag in note.tag_list]
+        tag_obj = HashTag(tag)
+        return [note for note in self.note_list if tag_obj in note.tag_list]
 
     def sorting(self):
         self.note_list.sort(key=lambda note: len(note.tag_list), reverse=True)
 
+
+    def save_to_file(self, filename):
+        with open(filename, 'w') as file:
+            for note in self.note_list:
+                file.write(note.to_string() + '\n')
+
+    def load_from_file(self, filename):
+        self.note_list.clear()
+        with open(filename, 'r') as file:
+            for line in file:
+                note = Note.from_string(line.strip())
+                self.note_list.append(note)
 
 class Record:
     def __init__(self, name: Name,
