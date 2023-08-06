@@ -1,7 +1,7 @@
 import pickle
 import difflib
+import sort
 import re
-
 from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email
 
 address_book = AddressBook()
@@ -193,6 +193,11 @@ def search_by_phone():
         return "\n".join(str(record) for record in results)
     return "No contacts found for the given phone."
 
+def sort_directory():
+    folder_path = input("Enter the folder path to sort: ")
+    result = sort.sort_folder(folder_path)  # виклик функції сортування з модуля sortfolder
+    return result
+
 
 def helper():
     commands = {
@@ -208,6 +213,7 @@ def helper():
         show_all: "show all -> displays all contacts and their phone numbers.",
         search_by_name: "search by name -> searches for contacts in which the name coincides",
         search_by_phone: "search by phone -> looking for contacts with a matching phone number",
+        sort_directory: "sort folder -> sorts files into categories, removes empty folders in the folder path specified by the user",
         helper: "help -> displays the list of available commands.",
         exit: "exit, close, good bye -> exits the program."
     }
@@ -278,6 +284,7 @@ def main():
         "show all": show_all,
         "search by name": search_by_name,
         "search by phone": search_by_phone,
+        "sort folder": sort_directory,
         "help": helper,
         "exit": exit,
         "good bye": exit,
