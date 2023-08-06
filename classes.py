@@ -117,7 +117,6 @@ class NotePad:
     def sorting(self):
         self.note_list.sort(key=lambda note: len(note.tag_list), reverse=True)
 
-
     def save_to_file(self, filename):
         with open(filename, 'w') as file:
             for note in self.note_list:
@@ -129,6 +128,7 @@ class NotePad:
             for line in file:
                 note = Note.from_string(line.strip())
                 self.note_list.append(note)
+
 
 class Record:
     def __init__(self, name: Name,
