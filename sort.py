@@ -46,4 +46,4 @@ def sort_folder(folder_path: str) -> str:
 
     delete_empty_folders(path)
     
-    return "All done"
+    return f"Sorting and Cleaning Completed in folder: {path}"
