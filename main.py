@@ -193,7 +193,7 @@ def search_by_phone():
 
 def sort_directory():
     folder_path = input("Enter the folder path to sort: ")
-    result = sortfolder.sort_folder(folder_path)  # виклик функції сортування з модуля sortfolder
+    result = sort.sort_folder(folder_path)  # виклик функції сортування з модуля sortfolder
     return result
 
 
