@@ -98,6 +98,7 @@ def edit_phone():
         return f"Phone number {new_phone} added to contact {name}."
     return f"No contact {name} in address book"
 
+
 @input_error
 def change_phone():
     name = Name(input("Enter the name: "))
