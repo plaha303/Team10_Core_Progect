@@ -1,6 +1,7 @@
 import pickle
 import difflib
 import sort
+import re
 from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email
 
 address_book = AddressBook()
@@ -97,6 +98,7 @@ def edit_phone():
         rec.add_phone(new_phone)
         return f"Phone number {new_phone} added to contact {name}."
     return f"No contact {name} in address book"
+
 
 @input_error
 def change_phone():
@@ -227,6 +229,38 @@ def find_closest_command(text, commands):
     if closest_command and closest_command[0] != text.lower():
         return closest_command[0]
     return None
+
+
+@input_error
+def input_correct_phone():
+    while True:
+        phone = input()
+        correct = ("(", ")", "-", " ")
+        for i in correct:
+            phone = phone.replace(i, "")
+        if len(phone) == 13 and phone.startswith('+38'):
+            return phone
+        elif len(phone) == 12 and phone.startswith('38'):
+            phone = f"+{phone}"
+            return phone
+        elif len(phone) == 10 and phone.startswith('0'):
+            phone = f"+38{phone}"
+            return phone
+        else:
+            raise ValueError("Invalid phone number") 
+    
+
+@input_error
+def input_correct_email():
+    email=input()
+    def analize_email(email):
+        pattern = r"([a-zA-Z0-9_.+-]{2,}+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.])"
+        return re.match(pattern, email) is not None
+    if analize_email(email) == True:
+         return f"Good {email}"
+    else:
+         print("Invalid e-mail address")
+         return None
 
 
 def main():
