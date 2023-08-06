@@ -251,10 +251,6 @@ def main():
         "close": exit
     }
 
-def test():
-    pass
-
-
     while True:
         command = input("Enter a command: ").lower()
 
