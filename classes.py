@@ -76,9 +76,13 @@ class Note:
     def __eq__(self, other):
         return self.text == other.text
     
+    @staticmethod
     def from_string(string):
         text, *tags = string.strip().split(';')
-        return Note(text, [HashTag(tag) for tag in tags])
+        note = Note(text)
+        for tag in tags:
+            note.add_tag(tag) 
+        return note
 
     def to_string(self):
         return f"{self.text};{';'.join([tag.tag for tag in self.tag_list])}"
@@ -108,7 +112,10 @@ class NotePad:
                 rec.text = new_text
 
     def delete(self, note):
-        self.note_list.remove(note)
+        if note in self.note_list:
+            self.note_list.remove(note)
+        else:
+            print("Note not found in notebook")
 
     def search_by_tag(self, tag):
         tag_obj = HashTag(tag)

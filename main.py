@@ -2,9 +2,10 @@ import pickle
 import difflib
 import sort
 import re
-from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email
+from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NotePad, HashTag
 
 address_book = AddressBook()
+notebook = NotePad()
 
 
 def input_error(func):
@@ -198,22 +199,135 @@ def sort_directory():
     result = sort.sort_folder(folder_path)  # виклик функції сортування з модуля sortfolder
     return result
 
+@input_error
+def add_note(*args):
+    global notebook
+    text = ' '.join(args)
+    if not text:
+        raise ValueError("enter the note text")
+    record = Note(text)
+    notebook.add_note(record)
+    return "Note added"
+    
+
+@input_error
+def add_tag(note, tag):
+    global notebook
+    if not tag:
+        raise ValueError("Enter  first_letters_of_the_note... #tag")
+    rec = quick_note(notebook, note)
+    rec.add_tag(tag)
+    notebook.sorting()
+    return f'Tag "{tag}" added to record "{rec}"'
+
+@input_error
+def change_note(*args):
+    global notebook
+    text = ' '.join(args)
+    if not text:
+        raise ValueError("enter part of the note text")
+    old_note, new_note = text.split("... ")
+    record = quick_note(notebook, old_note)
+    if record in notebook.note_list:
+        notebook.change_note(record, new_note)
+        return f'"{old_note}" changed to "{new_note}"'
+    return f'Record "{record}" not found'
+
+@input_error
+def del_note(*args):
+    global notebook
+    text = ' '.join(args)
+    if not text:
+        raise ValueError("enter part of note text or #tag")
+    record = quick_note(notebook, text)
+    if record in notebook.note_list:
+        notebook.delete(record)
+        notebook.sorting()
+        return f'"{record}" deleted successfully'
+    return f'Record "{record}" not found'
+
+@input_error
+def search_note(*args):
+    global notebook
+    if not notebook.note_list:
+        raise ValueError("No notes available")
+        
+    text = ' '.join(args).replace("...", "")
+    list_of_notes = [note for note in notebook.note_list if text in str(note)]
+    output = f"Found notes for {text}\n" + f'{", ".join(str(note) for note in list_of_notes)}'
+    return output if list_of_notes else "Record not found"
+
+
+    # text = ' '.join(args).replace("...", "")
+    # list_of_notes = []
+    # error = "Record not found"
+    # for note in notebook.note_list:
+    #     if text in str(note):
+    #         list_of_notes.append(note)
+    # output = (
+    #     f"Found notes for {text}"
+    #     + "\n"
+    #     + f'{", ".join(str(note) for note in list_of_notes)}'
+    # )
+    # return output if len(list_of_notes) != 0 else error
+
+def show_notes(*args):
+    global notebook
+    if not notebook.note_list:
+        raise ValueError("No notes available")
+        
+    line = "".join(f'{", ".join(str(tag) for tag in note.tag_list)} Content: {str(note)}\n' for note in notebook.note_list)
+    return "list of notes\n" + line + "end of list of notes"
+
+    # line = ""
+    # for note in notebook.note_list:
+    #     tags = ", ".join(str(tag) for tag in note.tag_list)
+    #     line += (
+    #         f'{tags} Content: {str(note)}'
+    #         + "\n"
+    #     )
+    # return "list of notes\n" + line + "end of list of notes"
+
+def quick_tag(text: str):
+    global notebook
+    for note in notebook.note_list:
+        for tag in note.tag_list:
+            if str(text) in str(tag):
+                return note
+    return None
+
+def quick_note(text: str):
+    global notebook
+    content = text.replace("...", "")
+    for note in notebook.note_list:
+        if content in str(note):
+            return note
+    return None 
+
 
 def helper():
     commands = {
         hello: "hello -> displays a welcome message.",
         add_contact: "add -> adds a new contact.",
         add_birthday: " add birthday -> adds birthday to contact",
+        add_note: "add note -> add a new note",
+        add_tag: "add tag -> add a new tag to a note.",
         edit_birthday: "edit birthday -> changes the existing birthday value of a contact",
         days_to_birthday: "days to birthday -> shows how many days are left until the birthday",
         edit_phone: "edit phone -> changes the phone number of an existing contact.",
         del_phone: "del phone -> delete number from contact.",
+        del_note: "del note -> delete a note.",
         add_phone: "add phone -> adds phone to exist contact",
         change_phone: "change phone -> replaces the old number with a new one",
+        change_note: "change note -> modify an existing note.", 
         show_all: "show all -> displays all contacts and their phone numbers.",
+        show_notes: "show notes -> display all notes.",
         search_by_name: "search by name -> searches for contacts in which the name coincides",
         search_by_phone: "search by phone -> looking for contacts with a matching phone number",
+        search_note: "search note -> search for a note.",
         sort_directory: "sort folder -> sorts files into categories, removes empty folders in the folder path specified by the user",
+        quick_tag: "quick tag -> find a note by tag.",
+        quick_note: "quick note -> find a note by content.",
         helper: "help -> displays the list of available commands.",
         exit: "exit, close, good bye -> exits the program."
     }
@@ -275,6 +389,14 @@ def main():
     commands = {
         "hello": hello,
         "add": add_contact,
+        "add note": add_note,
+        "add tag": add_tag,
+        "change note": change_note,
+        "del note": del_note,
+        "search note": search_note,
+        "show notes": show_notes,
+        "quick tag": quick_tag,
+        "quick note": quick_note,
         "add birthday": add_birthday,
         "edit birthday": edit_birthday,
         "days to birthday": days_to_birthday,
