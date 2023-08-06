@@ -34,8 +34,8 @@ class Name(Field):
 
 class Phone(Field):
     def validate(self, value):
-        if not value.isdigit() or len(value) != 10:
-            raise ValueError("Invalid phone number. Please enter a 10-digit number.")
+        if not value.startswith('+38') and len(value) != 13:
+            raise ValueError("Invalid phone number. Please enter a new number.")
 
 
 class Birthday(Field):
@@ -176,7 +176,7 @@ class Record:
 
     def edit_phone(self, old_phone, new_phone):
         for idx, p in enumerate(self.phones):
-            if old_phone.value == p.value:
+            if old_phone == p: # Leonid 
                 self.phones[idx] = new_phone
                 return f"old phone {old_phone} change to {new_phone}"
             return f"{old_phone} not present in phones of contact {self.name}"
