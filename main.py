@@ -2,7 +2,8 @@ import pickle
 import difflib
 import sort
 import re
-from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NotePad, HashTag
+from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NotePad, HashTag, datetime
+from datetime import timedelta
 
 address_book = AddressBook()
 notebook = NotePad()
