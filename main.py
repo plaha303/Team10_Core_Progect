@@ -2,7 +2,8 @@ import pickle
 import difflib
 import sort
 import re
-from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NotePad, HashTag
+from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NotePad, HashTag, datetime
+from datetime import timedelta
 
 address_book = AddressBook()
 notebook = NotePad()
@@ -149,6 +150,31 @@ def edit_birthday():
         rec.birthday = new_birthday
         return f"Birthday updated for contact {name}."
     return f"No contact {name} in address book"
+
+def show_birthday_within_days():
+    try:
+        days = int(input("Enter the number of days to check: "))
+    except ValueError:
+        return "Invalid input. Please enter a valid number of days."
+
+    today = datetime.now()
+    target_date = today + timedelta(days=days)
+    
+    birthday_contacts = []
+    for name, record in address_book.data.items():
+        if record.birthday:
+            birth_date = record.birthday.to_datetime().replace(year=today.year)
+            if birth_date.date() == target_date.date():
+                birthday_contacts.append(record)
+
+    if birthday_contacts:
+        output = f"Contacts with birthdays {days} days from now ({target_date.strftime('%d.%m')}):\n\n"
+        for contact in birthday_contacts:
+            contact_info = f"Name: {contact.name}; Phones: {', '.join(str(phone) for phone in contact.phones)}; Birthday: {contact.birthday};"
+            output += f"{contact_info}\n"
+        return output
+    else:
+        return f"No contacts have birthdays {days} days from now ({target_date.strftime('%d.%m')})."
 
 
 @input_error
@@ -314,6 +340,7 @@ def helper():
         add_tag: "add tag -> add a new tag to a note.",
         edit_birthday: "edit birthday -> changes the existing birthday value of a contact",
         days_to_birthday: "days to birthday -> shows how many days are left until the birthday",
+        show_birthday_within_days: "show birthday -> display a list of contacts whose birthday is a specified number of days from the current date",
         edit_phone: "edit phone -> changes the phone number of an existing contact.",
         del_phone: "del phone -> delete number from contact.",
         del_note: "del note -> delete a note.",
@@ -399,6 +426,7 @@ def main():
         "quick note": quick_note,
         "add birthday": add_birthday,
         "edit birthday": edit_birthday,
+        "show birthday": show_birthday_within_days,
         "days to birthday": days_to_birthday,
         "edit phone": edit_phone,
         "del phone": del_phone,
