@@ -151,6 +151,31 @@ def edit_birthday():
         return f"Birthday updated for contact {name}."
     return f"No contact {name} in address book"
 
+def show_birthday_within_days():
+    try:
+        days = int(input("Enter the number of days to check: "))
+    except ValueError:
+        return "Invalid input. Please enter a valid number of days."
+
+    today = datetime.now()
+    target_date = today + timedelta(days=days)
+    
+    birthday_contacts = []
+    for name, record in address_book.data.items():
+        if record.birthday:
+            birth_date = record.birthday.to_datetime().replace(year=today.year)
+            if birth_date.date() == target_date.date():
+                birthday_contacts.append(record)
+
+    if birthday_contacts:
+        output = f"Contacts with birthdays {days} days from now ({target_date.strftime('%d.%m')}):\n\n"
+        for contact in birthday_contacts:
+            contact_info = f"Name: {contact.name}; Phones: {', '.join(str(phone) for phone in contact.phones)}; Birthday: {contact.birthday};"
+            output += f"{contact_info}\n"
+        return output
+    else:
+        return f"No contacts have birthdays {days} days from now ({target_date.strftime('%d.%m')})."
+
 
 @input_error
 def show_all():
