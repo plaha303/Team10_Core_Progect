@@ -33,9 +33,23 @@ class Name(Field):
 
 
 class Phone(Field):
-    def validate(self, value):
-        if not value.startswith('+38') and len(value) != 13:
-            raise ValueError("Invalid phone number. Please enter a new number.")
+    
+    def validate_phone(self: str):
+        correct = ("(", ")", "-", " ")
+        while len(self) != 0 or len(self) == 13 and self.startswith('+38'):
+            for i in correct:
+                self = self.replace(i, "")
+            if len(self) == 13 and self.startswith('+38'):
+                return self
+            elif len(self) == 12 and self.startswith('38'):
+                self = f"+{self}"
+                return self
+            elif len(self) == 10 and self.startswith('0'):
+                self = f"+38{self}"
+                return self
+            else:
+                self = Phone.validate_phone(input("Invalid phone number. Please enter a new number: ").strip())  
+        return self
 
 
 class Birthday(Field):
@@ -56,7 +70,17 @@ class Address(Field):
 
 
 class Email(Field):
-    pass
+    def input_correct_email(self):
+        while len(self) != 0:
+            def analize_email(self):
+                pattern = r"(^[a-zA-Z0-9_.+-]{2,}@([a-zA-Z0-9-]{2,}\.[a-zA-Z0-9]+$|[a-zA-Z0-9-]{2,}\.[a-zA-Z0-9]+\.[a-zA-Z0-9]+$))"
+                return re.match(pattern, self) is not None
+            if analize_email(self) == True:
+                return f"Good {self}"
+            else:
+                self = Email.input_correct_email(input("Invalid e-mail address. Enter the email, or leave empty: ")) #
+            return self
+        return self
 
 
 class Note:
