@@ -222,8 +222,6 @@ def helper():
         help_text += f"{description}\n"
     return help_text
 
-def test():
-    ...
 
 def find_closest_command(text, commands):
     available_commands = list(commands.keys())
