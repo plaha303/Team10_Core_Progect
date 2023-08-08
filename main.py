@@ -1,7 +1,6 @@
 import pickle
 import difflib
 import sort
-import re
 import json
 from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook
 from datetime import datetime, timedelta
@@ -48,7 +47,8 @@ def add_contact():
         birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
 
     address_input = input("Enter the address, or leave empty: ")
-    email_input = Email.input_correct_email(input("Enter the email, or leave empty: ")) # LS --> Обрізка випадкових пробілів на початку та в кінці
+    email_input = input("Enter the email, or leave empty: ")
+    # email_input = Email.input_correct_email(input("Enter the email, or leave empty: "))
 
     phone = Phone(phone_input) if phone_input else None
     birthday = Birthday(birthday_input) if birthday_input else None
@@ -148,30 +148,6 @@ def edit_birthday():
         return f"Birthday updated for contact '{name}'." # LS --> естетичне виділення ключових слів
     return f"No contact '{name}' in address book" # LS --> естетичне виділення ключових слів
 
-def show_birthday_within_days():
-    try:
-        days = int(input("Enter the number of days to check: "))
-    except ValueError:
-        return "Invalid input. Please enter a valid number of days."
-
-    today = datetime.now()
-    target_date = today + timedelta(days=days)
-    
-    birthday_contacts = []
-    for name, record in address_book.data.items():
-        if record.birthday:
-            birth_date = record.birthday.to_datetime().replace(year=today.year)
-            if birth_date.date() == target_date.date():
-                birthday_contacts.append(record)
-
-    if birthday_contacts:
-        output = f"Contacts with birthdays {days} days from now ({target_date.strftime('%d.%m')}):\n\n"
-        for contact in birthday_contacts:
-            contact_info = f"Name: {contact.name}; Phones: {', '.join(str(phone) for phone in contact.phones)}; Birthday: {contact.birthday};"
-            output += f"{contact_info}\n"
-        return output
-    else:
-        return f"No contacts have birthdays {days} days from now ({target_date.strftime('%d.%m')})."
 
 def show_birthday_within_days():
     try:
