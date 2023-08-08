@@ -2,11 +2,11 @@ import pickle
 import difflib
 import sort
 import re
-from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NotePad, HashTag, datetime
+from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook, datetime
 from datetime import timedelta
 
 address_book = AddressBook()
-notebook = NotePad()
+notebook = NoteBook()
 
 
 def input_error(func):
@@ -220,115 +220,55 @@ def search_by_phone():
         return "\n".join(str(record) for record in results)
     return "No contacts found for the given phone."
 
+
 def sort_directory():
     folder_path = input("Enter the folder path to sort: ")
     result = sort.sort_folder(folder_path)  # виклик функції сортування з модуля sortfolder
     return result
 
-@input_error
-def add_note(*args):
-    global notebook
-    text = ' '.join(args)
-    if not text:
-        raise ValueError("enter the note text")
-    record = Note(text)
-    notebook.add_note(record)
-    return "Note added"
-    
 
-@input_error
-def add_tag(note, tag):
-    global notebook
-    if not tag:
-        raise ValueError("Enter  first_letters_of_the_note... #tag")
-    rec = quick_note(notebook, note)
-    rec.add_tag(tag)
-    notebook.sorting()
-    return f'Tag "{tag}" added to record "{rec}"'
-
-@input_error
-def change_note(*args):
-    global notebook
-    text = ' '.join(args)
-    if not text:
-        raise ValueError("enter part of the note text")
-    old_note, new_note = text.split("... ")
-    record = quick_note(notebook, old_note)
-    if record in notebook.note_list:
-        notebook.change_note(record, new_note)
-        return f'"{old_note}" changed to "{new_note}"'
-    return f'Record "{record}" not found'
-
-@input_error
-def del_note(*args):
-    global notebook
-    text = ' '.join(args)
-    if not text:
-        raise ValueError("enter part of note text or #tag")
-    record = quick_note(notebook, text)
-    if record in notebook.note_list:
-        notebook.delete(record)
-        notebook.sorting()
-        return f'"{record}" deleted successfully'
-    return f'Record "{record}" not found'
-
-@input_error
-def search_note(*args):
-    global notebook
-    if not notebook.note_list:
-        raise ValueError("No notes available")
-        
-    text = ' '.join(args).replace("...", "")
-    list_of_notes = [note for note in notebook.note_list if text in str(note)]
-    output = f"Found notes for {text}\n" + f'{", ".join(str(note) for note in list_of_notes)}'
-    return output if list_of_notes else "Record not found"
+def add_note():
+    text = input("Enter the note text: ")
+    note = Note(text)
+    notebook.add_note(note)
+    return f"Note '{text}' added."
 
 
-    # text = ' '.join(args).replace("...", "")
-    # list_of_notes = []
-    # error = "Record not found"
-    # for note in notebook.note_list:
-    #     if text in str(note):
-    #         list_of_notes.append(note)
-    # output = (
-    #     f"Found notes for {text}"
-    #     + "\n"
-    #     + f'{", ".join(str(note) for note in list_of_notes)}'
-    # )
-    # return output if len(list_of_notes) != 0 else error
+def add_tag():
+    text = input("Enter the note text: ")
+    tag = input("Enter the tag: ")
+    result = notebook.add_tag_to_note(text, tag)
+    return result
 
-def show_notes(*args):
-    global notebook
-    if not notebook.note_list:
-        raise ValueError("No notes available")
-        
-    line = "".join(f'{", ".join(str(tag) for tag in note.tag_list)} Content: {str(note)}\n' for note in notebook.note_list)
-    return "list of notes\n" + line + "end of list of notes"
 
-    # line = ""
-    # for note in notebook.note_list:
-    #     tags = ", ".join(str(tag) for tag in note.tag_list)
-    #     line += (
-    #         f'{tags} Content: {str(note)}'
-    #         + "\n"
-    #     )
-    # return "list of notes\n" + line + "end of list of notes"
+def change_note():
+    text = input("Enter the note text: ")
+    new_text = input("Enter the new note text: ")
+    result = notebook.edit_note(text, new_text)
+    return result
 
-def quick_tag(text: str):
-    global notebook
-    for note in notebook.note_list:
-        for tag in note.tag_list:
-            if str(text) in str(tag):
-                return note
-    return None
 
-def quick_note(text: str):
-    global notebook
-    content = text.replace("...", "")
-    for note in notebook.note_list:
-        if content in str(note):
-            return note
-    return None 
+def del_note():
+    text = input("Enter the note text: ")
+    result = notebook.delete_note_by_text(text)
+    return result
+
+
+def search_note_by_tag():
+    tag = input("Enter the tag to search by: ")
+    results = notebook.search_notes_by_tag(tag)
+    if results:
+        return "\n".join(str(note) for note in results)
+    return "No notes found for the given tag."
+
+def search_untagged():
+    results = notebook.search_untagged_notes()
+    if results:
+        return "\n".join(str(note) for note in results)
+    return "No untagged notes found."
+
+def show_notes():
+    return str(notebook)    
 
 
 def helper():
@@ -351,10 +291,9 @@ def helper():
         show_notes: "show notes -> display all notes.",
         search_by_name: "search by name -> searches for contacts in which the name coincides",
         search_by_phone: "search by phone -> looking for contacts with a matching phone number",
-        search_note: "search note -> search for a note.",
+        search_note_by_tag: "search note by tag -> search for a note with a tag.",
+        search_untagged: "search untagged -> Search for a note in the text",
         sort_directory: "sort folder -> sorts files into categories, removes empty folders in the folder path specified by the user",
-        quick_tag: "quick tag -> find a note by tag.",
-        quick_note: "quick note -> find a note by content.",
         helper: "help -> displays the list of available commands.",
         exit: "exit, close, good bye -> exits the program."
     }
@@ -406,7 +345,7 @@ def input_correct_email():
 
 def main():
     file_path = 'address_book.pkl'
-
+    file_path_note = 'notebook.pkl'
     try:
         address_book.load_from_file(file_path)
     except pickle.UnpicklingError:
@@ -420,10 +359,9 @@ def main():
         "add tag": add_tag,
         "change note": change_note,
         "del note": del_note,
-        "search note": search_note,
+        "search note": search_untagged,
+        "search note by tag": search_note_by_tag,
         "show notes": show_notes,
-        "quick tag": quick_tag,
-        "quick note": quick_note,
         "add birthday": add_birthday,
         "edit birthday": edit_birthday,
         "show birthday": show_birthday_within_days,
@@ -455,7 +393,7 @@ def main():
                 print("Invalid command. Please try again.")
 
         address_book.save_to_file(file_path)
-
+        notebook.save_to_file(file_path_note)
 
 if __name__ == "__main__":
     main()
