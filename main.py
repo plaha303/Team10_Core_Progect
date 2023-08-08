@@ -62,7 +62,7 @@ def del_phone():
     phone = Phone.validate_phone(input("Enter the phone number: ").strip())
     rec: Record = address_book.get(str(name))
     if rec:
-        rec.del_phone(phone)
+        rec.del_phone(Phone(phone)) # LS -->
         return f"The phone number '{phone}' has been removed from the contact '{name}'."
     return f"No contact '{name}' in address book"
 
