@@ -1,6 +1,7 @@
 from collections import UserDict
 from datetime import datetime
 import pickle
+import json
 
 
 class Field:
@@ -82,76 +83,88 @@ class Email(Field):
             return self
         return self
 
-
 class Note:
-    def __init__(self, text, tag=None):
+    def __init__(self, text, tags=[]):
         self.text = text
-        self.tag_list = [HashTag(tag)] if tag else []
+        self.tags = tags
 
     def add_tag(self, tag):
-        tag_obj = HashTag(tag)
-        if tag_obj not in self.tag_list:
-            self.tag_list.append(tag_obj)
-            self.tag_list.sort(key=lambda x: x.tag)
+        if tag not in self.tags:
+            self.tags.append(tag)
 
-    def __repr__(self) -> str:
-        return str(self.text)
+    def __str__(self):
+        return self.text + " (Tags: " + ", ".join(self.tags) + ")"
 
     def __eq__(self, other):
         return self.text == other.text
-    
-    def from_string(string):
-        text, *tags = string.strip().split(';')
-        return Note(text, [HashTag(tag) for tag in tags])
 
-    def to_string(self):
-        return f"{self.text};{';'.join([tag.tag for tag in self.tag_list])}"
-
-    
-class HashTag:
-    def __init__(self, tag):
-        self.tag = tag
-
-    def __eq__(self, other):
-        return self.tag == other.tag
-
-    def __repr__(self):
-        return f"#{self.tag}"
-
-
-class NotePad:
+class NoteBook:
     def __init__(self):
-        self.note_list = []
+        self.notes = []
 
     def add_note(self, note):
-        self.note_list.append(note)
+        self.notes.append(note)
 
-    def change_note(self, note, new_text):
-        for rec in self.note_list:
-            if note == rec:
-                rec.text = new_text
+    def add_tag_to_note(self, text, tag):
+        for note in self.notes:
+            if note.text == text:
+                note.add_tag(tag)
+                return f"Tag '{tag}' added to note with text '{text}'."
+        return f"Note with text '{text}' not found."
 
-    def delete(self, note):
-        self.note_list.remove(note)
+    def delete_note_by_text(self, text):
+        for note in self.notes:
+            if note.text == text:
+                self.notes.remove(note)
+                return f"Note with text '{text}' removed."
+        return f"Note with text '{text}' not found."
 
-    def search_by_tag(self, tag):
-        tag_obj = HashTag(tag)
-        return [note for note in self.note_list if tag_obj in note.tag_list]
+    def edit_note(self, old_text, new_text):
+        for note in self.notes:
+            if note.text == old_text:
+                note.text = new_text
+                return f"Note updated from '{old_text}' to '{new_text}'."
+        return f"Note with text '{old_text}' not found."
+    
+    def search_untagged_notes(self):
+        results = [note for note in self.notes if not note.tags]
+        return results
+    
+    def search_notes_by_tag(self, tag):
+        results = [note for note in self.notes if tag in note.tags]
+        return results
 
-    def sorting(self):
-        self.note_list.sort(key=lambda note: len(note.tag_list), reverse=True)
+    def search_notes_by_tags(self, tags):
+        results = [note for note in self.notes if all(tag in note.tags for tag in tags)]
+        return results
 
-    def save_to_file(self, filename):
-        with open(filename, 'w') as file:
-            for note in self.note_list:
-                file.write(note.to_string() + '\n')
+    def to_dict(self):
+        notes_data = [{'text': note.text, 'tags': note.tags} for note in self.notes]
+        return {'notes': notes_data}
 
-    def load_from_file(self, filename):
-        self.note_list.clear()
-        with open(filename, 'r') as file:
-            for line in file:
-                note = Note.from_string(line.strip())
-                self.note_list.append(note)
+    @classmethod
+    def from_dict(cls, data):
+        notebook = cls()
+        notes_data = data.get('notes', [])
+        for note_data in notes_data:
+            note = Note(note_data['text'], note_data['tags'])
+            notebook.add_note(note)
+        return notebook
+    
+    # def save_to_file(self, filename):
+    #     with open(filename, 'wb') as file:
+    #         pickle.dump(self, file)
+
+    # @classmethod
+    # def load_from_file(cls, filename):
+    #     with open(filename, 'rb') as file:
+    #         return pickle.load(file)
+
+    def get_notes(self):
+        return self.notes
+
+    def __str__(self):
+        return "\n".join(str(note) for note in self.notes)
 
 
 class Record:

@@ -2,11 +2,12 @@ import pickle
 import difflib
 import sort
 import re
-from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NotePad, HashTag, datetime
+import json
+from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook, datetime
 from datetime import timedelta
 
 address_book = AddressBook()
-notebook = NotePad()
+notebook = NoteBook()
 
 
 def input_error(func):
@@ -146,6 +147,31 @@ def edit_birthday():
         rec.birthday = new_birthday
         return f"Birthday updated for contact '{name}'." # LS --> естетичне виділення ключових слів
     return f"No contact '{name}' in address book" # LS --> естетичне виділення ключових слів
+
+def show_birthday_within_days():
+    try:
+        days = int(input("Enter the number of days to check: "))
+    except ValueError:
+        return "Invalid input. Please enter a valid number of days."
+
+    today = datetime.now()
+    target_date = today + timedelta(days=days)
+    
+    birthday_contacts = []
+    for name, record in address_book.data.items():
+        if record.birthday:
+            birth_date = record.birthday.to_datetime().replace(year=today.year)
+            if birth_date.date() == target_date.date():
+                birthday_contacts.append(record)
+
+    if birthday_contacts:
+        output = f"Contacts with birthdays {days} days from now ({target_date.strftime('%d.%m')}):\n\n"
+        for contact in birthday_contacts:
+            contact_info = f"Name: {contact.name}; Phones: {', '.join(str(phone) for phone in contact.phones)}; Birthday: {contact.birthday};"
+            output += f"{contact_info}\n"
+        return output
+    else:
+        return f"No contacts have birthdays {days} days from now ({target_date.strftime('%d.%m')})."
 
 def show_birthday_within_days():
     try:
@@ -328,6 +354,60 @@ def quick_note(text: str):
     return None 
 
 
+def sort_directory():
+    folder_path = input("Enter the folder path to sort: ")
+    result = sort.sort_folder(folder_path)  # виклик функції сортування з модуля sortfolder
+    return result
+
+
+def add_note():
+    text = input("Enter the note text: ")
+    note = Note(text)
+    notebook.add_note(note)
+    return f"Note '{text}' added."
+
+
+def add_tag():
+    text = input("Enter the note text: ")
+    tag = input("Enter the tag: ")
+    result = notebook.add_tag_to_note(text, tag)
+    return result
+
+
+def change_note():
+    text = input("Enter the note text: ")
+    new_text = input("Enter the new note text: ")
+    result = notebook.edit_note(text, new_text)
+    return result
+
+
+def del_note():
+    text = input("Enter the note text: ")
+    result = notebook.delete_note_by_text(text)
+    return result
+
+
+def search_note_by_tag():
+    tag = input("Enter the tag to search by: ")
+    results = notebook.search_notes_by_tag(tag)
+    if results:
+        return "\n".join(f"Note:{(str(note))}" for note in results)
+    return "No notes found for the given tag."
+
+def search_untagged():
+    results = notebook.search_untagged_notes()
+    if results:
+        return "\n".join(str(note) for note in results)
+    return "No untagged notes found."
+
+def show_notes():
+    notes = notebook.get_notes()
+    if len(notes) == 0:
+        return "Notebook is empty"
+    else:
+        return f"Note: {str(notebook)}"    
+
+
 def helper():
     commands = {
         hello: "hello -> displays a welcome message.",
@@ -348,10 +428,9 @@ def helper():
         show_notes: "show notes -> display all notes.",
         search_by_name: "search by name -> searches for contacts in which the name coincides",
         search_by_phone: "search by phone -> looking for contacts with a matching phone number",
-        search_note: "search note -> search for a note.",
+        search_note_by_tag: "search note by tag -> search for a note with a tag.",
+        search_untagged: "search untagged -> Search for a note in the text",
         sort_directory: "sort folder -> sorts files into categories, removes empty folders in the folder path specified by the user",
-        quick_tag: "quick tag -> find a note by tag.",
-        quick_note: "quick note -> find a note by content.",
         helper: "help -> displays the list of available commands.",
         exit: "exit, close, good bye -> exits the program."
     }
@@ -369,42 +448,18 @@ def find_closest_command(text, commands):
     return None
 
 
-'''ЦЕ НА ВИДАЛЕННЯ
-
-@input_error
-def input_correct_phone():
-    while True:
-        phone = input()
-        correct = ("(", ")", "-", " ")
-        for i in correct:
-            phone = phone.replace(i, "")
-        if len(phone) == 13 and phone.startswith('+38'):
-            return phone
-        elif len(phone) == 12 and phone.startswith('38'):
-            phone = f"+{phone}"
-            return phone
-        elif len(phone) == 10 and phone.startswith('0'):
-            phone = f"+38{phone}"
-            return phone
-        else:
-            raise ValueError("Invalid phone number") 
-    
-
-@input_error
-def input_correct_email():
-    email=input()
-    def analize_email(email):
-        pattern = r"([a-zA-Z0-9_.+-]{2,}+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.])"
-        return re.match(pattern, email) is not None
-    if analize_email(email) == True:
-         return f"Good {email}"
-    else:
-         print("Invalid e-mail address")
-         return None'''
-
 
 def main():
     file_path = 'address_book.pkl'
+    file_path_note = 'notebook.txt'
+    try:
+        with open(file_path_note, 'r') as file:
+            notebook_data = json.load(file)
+            notebook = NoteBook.from_dict(notebook_data)
+    except (FileNotFoundError, json.JSONDecodeError):
+        notebook = NoteBook()
+        print("Failed to load the notebook. Starting with an empty notebook.")
+
 
     try:
         address_book.load_from_file(file_path)
@@ -419,10 +474,9 @@ def main():
         "add tag": add_tag,
         "change note": change_note,
         "del note": del_note,
-        "search note": search_note,
+        "search note": search_untagged,
+        "search note by tag": search_note_by_tag,
         "show notes": show_notes,
-        "quick tag": quick_tag,
-        "quick note": quick_note,
         "add birthday": add_birthday,
         "edit birthday": edit_birthday,
         "show birthday": show_birthday_within_days,
@@ -454,7 +508,9 @@ def main():
                 print("Invalid command. Please try again.")
 
         address_book.save_to_file(file_path)
-
+        with open(file_path_note, 'w') as file:
+            json.dump(notebook.to_dict(), file)
+            
 
 if __name__ == "__main__":
     main()
