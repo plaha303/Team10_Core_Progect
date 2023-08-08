@@ -27,8 +27,8 @@ class Field:
 
 
 class Name(Field):
-    def validate(self, value):
-        if not value or not isinstance(value, str):
+    def validate(self): # LS -->
+        if not self or not isinstance(self, str): # LS -->
             raise ValueError("The name must be a non-empty string.")
 
 
