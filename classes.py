@@ -212,8 +212,8 @@ class Record:
 
     def edit_phone(self, old_phone, new_phone):
         for idx, p in enumerate(self.phones):
-            if old_phone == p: # Leonid 
-                self.phones[idx] = new_phone
+            if old_phone == p.value: # LS -->
+                self.phones[idx].value = new_phone # LS -->
                 return f"old phone {old_phone} change to {new_phone}"
             return f"{old_phone} not present in phones of contact {self.name}"
 
