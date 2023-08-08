@@ -248,12 +248,27 @@ def add_note():
     notebook.add_note(note)
     return f"Note '{text}' added."
 
-
+@input_error
 def add_tag():
-    text = input("Enter the note text: ")
+    attempts = 0
+    while attempts < 3:
+        note_text = input("Enter the note text: ")
+        note = notebook.get_note_by_text(note_text)
+        if note is None:
+            attempts += 1
+            print(f"Note with text '{note_text}' not found. Please try again.")
+        else:
+            break
+    else:
+        print("Failed to find the note. Exiting tag addition.")
+        return
+
     tag = input("Enter the tag: ")
-    result = notebook.add_tag_to_note(text, tag)
+    notebook.add_tag_to_note(note_text, tag)
+    result = f"Tag '{tag}' added to note with text '{note_text}'."
     return result
+
+
 
 
 def change_note():
@@ -269,28 +284,53 @@ def del_note():
     return result
 
 
+@input_error
 def search_note_by_tag():
-    tag = input("Enter the tag to search by: ")
-    results = notebook.search_notes_by_tag(tag)
-    if results:
-        return "\n".join(f"Note:{(str(note))}" for note in results)
-    return "No notes found for the given tag."
+    while True:
+        tag = input("Enter the tag to search for notes or type 'exit' to return to the main menu: ")
+        if tag.lower() == 'exit':
+            return
+        notes_with_tag = notebook.search_notes_by_tag(tag)
+        
+        if len(notes_with_tag) == 0:
+            print(f"No notes found with tag '{tag}'. Please try again or type 'exit' to return to the main menu.")
+        else:
+            result = []
+            for note in notes_with_tag:
+                result.append(f"Note: {note.text}")
+            return "\n\n".join(result)
 
 
-def search_untagged():
-    results = notebook.search_untagged_notes()
-    if results:
-        return "\n".join(str(note) for note in results)
-    return "No untagged notes found."
+@input_error
+def search_note():
+    while True:
+        search_word = input("Enter the word to search in notes or type 'exit' to try searching by tag: ")
+        if search_word.lower() == 'exit':
+            return
+        notes_with_word = notebook.search_notes_by_word(search_word)
+        
+        if len(notes_with_word) == 0:
+            print(f"No notes found containing the word '{search_word}'. Please try again or type 'exit' to search by tag.")
+        else:
+            result = []
+            for note in notes_with_word:
+                result.append(f"Note: {note.text}")
+            return "\n\n".join(result)
 
 
 def show_notes():
     notes = notebook.get_notes()
     if len(notes) == 0:
-        return "Notebook is empty"
-    else:
-        return f"Note: {str(notebook)}"    
-
+        return "No notes found."
+    
+    result = []
+    for note in notes:
+        if len(note.tags) == 0:
+            result.append(f"Note: {note.text}")
+        else:
+            result.append(str(note))
+    
+    return "\n\n".join(result)
 
 def helper():
     commands = {
@@ -314,7 +354,7 @@ def helper():
         search_by_name: "search by name -> searches for contacts in which the name coincides",
         search_by_phone: "search by phone -> looking for contacts with a matching phone number",
         search_note_by_tag: "search note by tag -> search for a note with a tag.",
-        search_untagged: "search untagged -> Search for a note in the text",
+        search_note: "search note -> Search for a note in the text",
         sort_directory: "sort folder -> sorts files into categories,"
                         " removes empty folders in the folder path specified by the user",
         helper: "help -> displays the list of available commands.",
@@ -358,7 +398,7 @@ def main():
         "add tag": add_tag,
         "change note": change_note,
         "del note": del_note,
-        "search note": search_untagged,
+        "search note": search_note,
         "search note by tag": search_note_by_tag,
         "show notes": show_notes,
         "add birthday": add_birthday,

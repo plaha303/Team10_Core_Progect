@@ -83,16 +83,16 @@ class Email(Field):
         return self
 
 class Note:
-    def __init__(self, text, tags=[]):
+    def __init__(self, text, tags=None):
         self.text = text
-        self.tags = tags
+        self.tags = tags if tags is not None else []
 
-    def add_tag(self, tag):
+    def add_tag(self, tag=None):
         if tag not in self.tags:
             self.tags.append(tag)
 
     def __str__(self):
-        return self.text + " (Tags: " + ", ".join(self.tags) + ")"
+        return "Tags: " + ", ".join(self.tags) + "\n" + "Note: " + self.text
 
     def __eq__(self, other):
         return self.text == other.text
@@ -104,12 +104,21 @@ class NoteBook:
     def add_note(self, note):
         self.notes.append(note)
 
+    def get_note_by_text(self, text):
+            for note in self.notes:
+                if note.text == text:
+                    return note
+            return None
+    
     def add_tag_to_note(self, text, tag):
+        note_found = False  # Доданий флаг для перевірки, чи знайдена нотатка з введеним текстом
         for note in self.notes:
-            if note.text == text:
+            if text in note.text:
+                note_found = True
                 note.add_tag(tag)
-                return f"Tag '{tag}' added to note with text '{text}'."
-        return f"Note with text '{text}' not found."
+                return f"Tag '{tag}' added to note with text '{note.text}'."
+        if not note_found:
+            return f"Note starting with '{text}' not found."
 
     def delete_note_by_text(self, text):
         for note in self.notes:
@@ -125,8 +134,8 @@ class NoteBook:
                 return f"Note updated from '{old_text}' to '{new_text}'."
         return f"Note with text '{old_text}' not found."
     
-    def search_untagged_notes(self):
-        results = [note for note in self.notes if not note.tags]
+    def search_notes_by_word(self, word):
+        results = [note for note in self.notes if word.lower() in note.text.lower()]
         return results
     
     def search_notes_by_tag(self, tag):
@@ -149,6 +158,12 @@ class NoteBook:
             note = Note(note_data['text'], note_data['tags'])
             notebook.add_note(note)
         return notebook
+    
+    def get_note_by_text(self, text):
+        for note in self.notes:
+            if note.text == text:
+                return note
+        return None
     
     # def save_to_file(self, filename):
     #     with open(filename, 'wb') as file:
