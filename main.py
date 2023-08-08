@@ -2,8 +2,8 @@ import pickle
 import difflib
 import sort
 import json
-from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook, datetime
-from datetime import timedelta
+from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook
+from datetime import datetime, timedelta
 
 address_book = AddressBook()
 notebook = NoteBook()
@@ -155,24 +155,19 @@ def show_birthday_within_days():
     except ValueError:
         return "Invalid input. Please enter a valid number of days."
 
-    today = datetime.now()
-    target_date = today + timedelta(days=days)
-    
     birthday_contacts = []
     for name, record in address_book.data.items():
-        if record.birthday:
-            birth_date = record.birthday.to_datetime().replace(year=today.year)
-            if birth_date.date() == target_date.date():
-                birthday_contacts.append(record)
+        if record.birthday and record.days_to_birthday() == days:
+            birthday_contacts.append(record)
 
     if birthday_contacts:
-        output = f"Contacts with birthdays {days} days from now ({target_date.strftime('%d.%m')}):\n\n"
+        output = f"Contacts with birthdays {days} days from now:\n\n"
         for contact in birthday_contacts:
             contact_info = f"Name: {contact.name}; Phones: {', '.join(str(phone) for phone in contact.phones)}; Birthday: {contact.birthday};"
             output += f"{contact_info}\n"
         return output
     else:
-        return f"No contacts have birthdays {days} days from now ({target_date.strftime('%d.%m')})."
+        return f"No contacts have birthdays {days} days from now."
 
 
 @input_error
@@ -224,110 +219,6 @@ def sort_directory():
     result = sort.sort_folder(folder_path)  # виклик функції сортування з модуля sortfolder
     return result
 
-@input_error
-def add_note(*args):
-    global notebook
-    text = ' '.join(args)
-    if not text:
-        raise ValueError("enter the note text")
-    record = Note(text)
-    notebook.add_note(record)
-    return "Note added"
-    
-
-@input_error
-def add_tag(note, tag):
-    global notebook
-    if not tag:
-        raise ValueError("Enter  first_letters_of_the_note... #tag")
-    rec = quick_note(notebook, note)
-    rec.add_tag(tag)
-    notebook.sorting()
-    return f'Tag "{tag}" added to record "{rec}"'
-
-@input_error
-def change_note(*args):
-    global notebook
-    text = ' '.join(args)
-    if not text:
-        raise ValueError("enter part of the note text")
-    old_note, new_note = text.split("... ")
-    record = quick_note(notebook, old_note)
-    if record in notebook.note_list:
-        notebook.change_note(record, new_note)
-        return f'"{old_note}" changed to "{new_note}"'
-    return f'Record "{record}" not found'
-
-@input_error
-def del_note(*args):
-    global notebook
-    text = ' '.join(args)
-    if not text:
-        raise ValueError("enter part of note text or #tag")
-    record = quick_note(notebook, text)
-    if record in notebook.note_list:
-        notebook.delete(record)
-        notebook.sorting()
-        return f'"{record}" deleted successfully'
-    return f'Record "{record}" not found'
-
-@input_error
-def search_note(*args):
-    global notebook
-    if not notebook.note_list:
-        raise ValueError("No notes available")
-        
-    text = ' '.join(args).replace("...", "")
-    list_of_notes = [note for note in notebook.note_list if text in str(note)]
-    output = f"Found notes for {text}\n" + f'{", ".join(str(note) for note in list_of_notes)}'
-    return output if list_of_notes else "Record not found"
-
-
-    # text = ' '.join(args).replace("...", "")
-    # list_of_notes = []
-    # error = "Record not found"
-    # for note in notebook.note_list:
-    #     if text in str(note):
-    #         list_of_notes.append(note)
-    # output = (
-    #     f"Found notes for {text}"
-    #     + "\n"
-    #     + f'{", ".join(str(note) for note in list_of_notes)}'
-    # )
-    # return output if len(list_of_notes) != 0 else error
-
-def show_notes(*args):
-    global notebook
-    if not notebook.note_list:
-        raise ValueError("No notes available")
-        
-    line = "".join(f'{", ".join(str(tag) for tag in note.tag_list)} Content: {str(note)}\n' for note in notebook.note_list)
-    return "list of notes\n" + line + "end of list of notes"
-
-    # line = ""
-    # for note in notebook.note_list:
-    #     tags = ", ".join(str(tag) for tag in note.tag_list)
-    #     line += (
-    #         f'{tags} Content: {str(note)}'
-    #         + "\n"
-    #     )
-    # return "list of notes\n" + line + "end of list of notes"
-
-def quick_tag(text: str):
-    global notebook
-    for note in notebook.note_list:
-        for tag in note.tag_list:
-            if str(text) in str(tag):
-                return note
-    return None
-
-def quick_note(text: str):
-    global notebook
-    content = text.replace("...", "")
-    for note in notebook.note_list:
-        if content in str(note):
-            return note
-    return None 
 
 
 def sort_directory():
