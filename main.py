@@ -4,7 +4,6 @@ import sort
 import re
 import json
 from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook
-from datetime import datetime, timedelta
 
 address_book = AddressBook()
 notebook = NoteBook()
@@ -32,15 +31,13 @@ def hello():
 
 @input_error
 def add_contact():
-    name = Name(input("Enter the name: ").strip()) # LS -->  Обрізка випадкових пробілів на початку та в кінці
+    name = Name(input("Enter the name: ").strip())
 
     rec: Record = address_book.get(str(name))
     if rec:
         return "Contact already exists. Use 'edit phone', 'edit birthday', etc., to modify the contact."
 
-    phone_input = Phone.validate_phone(input("Enter the phone number: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
-
-
+    phone_input = Phone.validate_phone(input("Enter the phone number: ").strip())
 
     birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
     while birthday_input and not Record.is_valid_birthday_format(birthday_input):
@@ -57,96 +54,94 @@ def add_contact():
 
     rec = Record(name, phone, birthday, address, email)
     address_book.add_record(rec)
-    return f"Contact '{name}' successfully added." # LS --> естетичне виділення ключових слів
+    return f"Contact '{name}' successfully added."
 
 
 def del_phone():
     name = Name(input("Enter the name: "))
-    phone = Phone.validate_phone(input("Enter the phone number: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
+    phone = Phone.validate_phone(input("Enter the phone number: ").strip())
     rec: Record = address_book.get(str(name))
     if rec:
         rec.del_phone(phone)
-        return f"The phone number '{phone}' has been removed from the contact '{name}'." # LS --> естетичне виділення ключових слів
-    return f"No contact '{name}' in address book" # LS --> естетичне виділення ключових слів
+        return f"The phone number '{phone}' has been removed from the contact '{name}'."
+    return f"No contact '{name}' in address book"
 
 
 @input_error
 def add_phone():
-    name = Name(input("Enter the name: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
+    name = Name(input("Enter the name: ").strip())
     rec: Record = address_book.get(str(name))
     if rec:
-        phone_input = Phone.validate_phone(input("Enter the phone number: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
+        phone_input = Phone.validate_phone(input("Enter the phone number: ").strip())
 
         new_phone = Phone(phone_input)
         rec.add_phone(new_phone)
-        return f"Phone number '{new_phone}' added to contact '{name}'." # LS --> естетичне виділення ключових слів
-    return f"No contact '{name}' in the address book" # LS --> естетичне виділення ключових слів
+        return f"Phone number '{new_phone}' added to contact '{name}'."
+    return f"No contact '{name}' in the address book"
 
 
 @input_error
 def edit_phone():
-    name = Name(input("Enter the name: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
+    name = Name(input("Enter the name: ").strip())
     rec: Record = address_book.get(str(name))
     if rec:
-        phone_input = Phone.validate_phone(input("Enter the phone number: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
+        phone_input = Phone.validate_phone(input("Enter the phone number: ").strip())
 
         new_phone = Phone(phone_input)
         rec.add_phone(new_phone)
-        return f"Phone number '{new_phone}' added to contact '{name}'." # LS --> естетичне виділення ключових слів
-    return f"No contact '{name}' in address book" # LS --> естетичне виділення ключових слів
-
+        return f"Phone number '{new_phone}' added to contact '{name}'."
+    return f"No contact '{name}' in address book"
 
 
 @input_error
 def change_phone():
     name = Name(input("Enter the name: ").strip())
-    old_phone = Phone.validate_phone(input("Enter the old phone number: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
-    new_phone = Phone.validate_phone(input("Enter the new phone number: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
+    old_phone = Phone.validate_phone(input("Enter the old phone number: ").strip())
+    new_phone = Phone.validate_phone(input("Enter the new phone number: ").strip())
 
     rec: Record = address_book.get(str(name))
     if rec:
         rec.edit_phone(old_phone, new_phone)
-        return f"The old phone number '{old_phone}' has been updated to '{new_phone}' for contact '{name}'." # LS --> естетичне виділення ключових слів
-    return f"No contact '{name}' in address book" # LS --> естетичне виділення ключових слів
+        return f"The old phone number '{old_phone}' has been updated to '{new_phone}' for contact '{name}'."
+    return f"No contact '{name}' in address book"
 
 
 @input_error
 def add_birthday():
-    name = Name(input("Enter the name: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
+    name = Name(input("Enter the name: ").strip())
     birthday = Birthday(input("Enter birthday in format 'DD.MM.YYYY': "))
     rec: Record = address_book.get(str(name))
     if rec:
         rec.birthday = birthday
-        return f"Birthday updated for contact '{name}'." # LS --> естетичне виділення ключових слів
-    return f"No contact '{name}' in address book" # LS --> естетичне виділення ключових слів
+        return f"Birthday updated for contact '{name}'."
+    return f"No contact '{name}' in address book"
 
 
 @input_error
 def days_to_birthday():
-    name = Name(input("Enter the name: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
+    name = Name(input("Enter the name: ").strip())
     rec: Record = address_book.get(str(name))
     if rec and rec.birthday:
         days_left = rec.days_to_birthday()
         if days_left is not None:
             if days_left == 0:
-                return f"Contact '{name}' birthday is today!" # LS --> естетичне виділення ключових слів
+                return f"Contact '{name}' birthday is today!"
             elif days_left == 1:
-                return f"Contact '{name}' birthday is tomorrow!" # LS --> естетичне виділення ключових слів
-            return f"Contact '{name}' birthday is in '{days_left}' days." # LS --> естетичне виділення ключових слів
-        return f"Contact '{name}' birthday is today!" # LS --> естетичне виділення ключових слів
-    return f"The contact '{name}' is not found in the address book or the birthday is not specified." # LS --> естетичне виділення ключових слів
-
+                return f"Contact '{name}' birthday is tomorrow!"
+            return f"Contact '{name}' birthday is in '{days_left}' days."
+        return f"Contact '{name}' birthday is today!"
+    return f"The contact '{name}' is not found in the address book or the birthday is not specified."
 
 
 @input_error
 def edit_birthday():
-    name = Name(input("Enter the name: ").strip()) # LS --> Обрізка випадкових пробілів на початку та в кінці
+    name = Name(input("Enter the name: ").strip())
     rec: Record = address_book.get(str(name))
     if rec:
         new_birthday = Birthday(input("Enter a new birthday (in DD.MM.YYYY format): "))
         rec.birthday = new_birthday
-        return f"Birthday updated for contact '{name}'." # LS --> естетичне виділення ключових слів
-    return f"No contact '{name}' in address book" # LS --> естетичне виділення ключових слів
+        return f"Birthday updated for contact '{name}'."
+    return f"No contact '{name}' in address book"
 
 def show_birthday_within_days():
     try:
@@ -187,7 +182,9 @@ def show_birthday_within_days():
     if birthday_contacts:
         output = f"Contacts with birthdays {days} days from now:\n\n"
         for contact in birthday_contacts:
-            contact_info = f"Name: {contact.name}; Phones: {', '.join(str(phone) for phone in contact.phones)}; Birthday: {contact.birthday};"
+            contact_info = f"Name: {contact.name};" \
+                           f" Phones: {', '.join(str(phone) for phone in contact.phones)};" \
+                           f" Birthday: {contact.birthday};"
             output += f"{contact_info}\n"
         return output
     else:
@@ -220,7 +217,7 @@ def show_all():
             break
         else:
             page_number += 1
-    return "Continue...\n" # LS --> естетична заміна для "None"
+    return "Continue...\n"
 
 
 def search_by_name():
@@ -237,12 +234,6 @@ def search_by_phone():
     if results:
         return "\n".join(str(record) for record in results)
     return "No contacts found for the given phone."
-
-def sort_directory():
-    folder_path = input("Enter the folder path to sort: ")
-    result = sort.sort_folder(folder_path)  # виклик функції сортування з модуля sortfolder
-    return result
-
 
 
 def sort_directory():
@@ -285,11 +276,13 @@ def search_note_by_tag():
         return "\n".join(f"Note:{(str(note))}" for note in results)
     return "No notes found for the given tag."
 
+
 def search_untagged():
     results = notebook.search_untagged_notes()
     if results:
         return "\n".join(str(note) for note in results)
     return "No untagged notes found."
+
 
 def show_notes():
     notes = notebook.get_notes()
@@ -308,7 +301,8 @@ def helper():
         add_tag: "add tag -> add a new tag to a note.",
         edit_birthday: "edit birthday -> changes the existing birthday value of a contact",
         days_to_birthday: "days to birthday -> shows how many days are left until the birthday",
-        show_birthday_within_days: "show birthday -> display a list of contacts whose birthday is a specified number of days from the current date",
+        show_birthday_within_days: "show birthday -> display a list of contacts whose birthday is a specified number"
+                                   " of days from the current date",
         edit_phone: "edit phone -> changes the phone number of an existing contact.",
         del_phone: "del phone -> delete number from contact.",
         del_note: "del note -> delete a note.",
@@ -321,7 +315,8 @@ def helper():
         search_by_phone: "search by phone -> looking for contacts with a matching phone number",
         search_note_by_tag: "search note by tag -> search for a note with a tag.",
         search_untagged: "search untagged -> Search for a note in the text",
-        sort_directory: "sort folder -> sorts files into categories, removes empty folders in the folder path specified by the user",
+        sort_directory: "sort folder -> sorts files into categories,"
+                        " removes empty folders in the folder path specified by the user",
         helper: "help -> displays the list of available commands.",
         exit: "exit, close, good bye -> exits the program."
     }
@@ -339,7 +334,6 @@ def find_closest_command(text, commands):
     return None
 
 
-
 def main():
     file_path = 'address_book.pkl'
     file_path_note = 'notebook.txt'
@@ -350,7 +344,6 @@ def main():
     except (FileNotFoundError, json.JSONDecodeError):
         notebook = NoteBook()
         print("Failed to load the notebook. Starting with an empty notebook.")
-
 
     try:
         address_book.load_from_file(file_path)
@@ -386,7 +379,7 @@ def main():
     }
 
     while True:
-        command = input("Enter a command: ").lower().strip() # LS --> Обрізка випадкових пробілів на початку та в кінці
+        command = input("Enter a command: ").lower().strip()
 
         closest_command = find_closest_command(command, commands)
         if closest_command:
