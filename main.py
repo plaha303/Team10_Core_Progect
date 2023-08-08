@@ -3,8 +3,8 @@ import difflib
 import sort
 import re
 import json
-from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook, datetime
-from datetime import timedelta
+from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook
+
 
 address_book = AddressBook()
 notebook = NoteBook()
