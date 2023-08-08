@@ -221,7 +221,7 @@ def show_all():
 
 
 def search_by_name():
-    name_query = input("Enter the name or part of the name to search: ")
+    name_query = input("Enter the name or part of the name to search: ").strip()
     results = address_book.search_by_name(name_query)
     if results:
         return "\n".join(str(record) for record in results)
@@ -229,7 +229,7 @@ def search_by_name():
 
 
 def search_by_phone():
-    phone_query = input("Enter the phone or part of the phone to search: ")
+    phone_query = input("Enter the phone or part of the phone to search: ").strip()
     results = address_book.search_by_phone(phone_query)
     if results:
         return "\n".join(str(record) for record in results)
@@ -350,7 +350,7 @@ def main():
     except pickle.UnpicklingError:
         print("Failed to load the address book. Starting with an empty address book.")
 
-    print("Welcome!")
+    print("\nWelcome!\n")
     commands = {
         "hello": hello,
         "add": add_contact,
@@ -379,7 +379,7 @@ def main():
     }
 
     while True:
-        command = input("Enter a command: ").lower().strip()
+        command = input("\nEnter a command: ").lower().strip()
 
         closest_command = find_closest_command(command, commands)
         if closest_command:
