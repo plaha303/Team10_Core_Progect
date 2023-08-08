@@ -2,6 +2,7 @@ import pickle
 import difflib
 import sort
 import re
+import json
 from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook, datetime
 from datetime import timedelta
 
@@ -258,7 +259,7 @@ def search_note_by_tag():
     tag = input("Enter the tag to search by: ")
     results = notebook.search_notes_by_tag(tag)
     if results:
-        return "\n".join(str(note) for note in results)
+        return "\n".join(f"Note:{(str(note))}" for note in results)
     return "No notes found for the given tag."
 
 def search_untagged():
@@ -268,7 +269,11 @@ def search_untagged():
     return "No untagged notes found."
 
 def show_notes():
-    return str(notebook)    
+    notes = notebook.get_notes()
+    if len(notes) == 0:
+        return "Notebook is empty"
+    else:
+        return f"Note: {str(notebook)}"    
 
 
 def helper():
@@ -345,7 +350,16 @@ def input_correct_email():
 
 def main():
     file_path = 'address_book.pkl'
-    file_path_note = 'notebook.pkl'
+    file_path_note = 'notebook.txt'
+    try:
+        with open(file_path_note, 'r') as file:
+            notebook_data = json.load(file)
+            notebook = NoteBook.from_dict(notebook_data)
+    except (FileNotFoundError, json.JSONDecodeError):
+        notebook = NoteBook()
+        print("Failed to load the notebook. Starting with an empty notebook.")
+
+
     try:
         address_book.load_from_file(file_path)
     except pickle.UnpicklingError:
@@ -393,7 +407,10 @@ def main():
                 print("Invalid command. Please try again.")
 
         address_book.save_to_file(file_path)
-        notebook.save_to_file(file_path_note)
+        with open(file_path_note, 'w') as file:
+            json.dump(notebook.to_dict(), file)
+            
 
 if __name__ == "__main__":
     main()
+

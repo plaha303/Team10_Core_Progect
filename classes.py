@@ -1,6 +1,7 @@
 from collections import UserDict
 from datetime import datetime
 import pickle
+import json
 
 
 class Field:
@@ -113,14 +114,30 @@ class NoteBook:
         results = [note for note in self.notes if all(tag in note.tags for tag in tags)]
         return results
 
-    def save_to_file(self, filename):
-        with open(filename, 'wb') as file:
-            pickle.dump(self, file)
+    def to_dict(self):
+        notes_data = [{'text': note.text, 'tags': note.tags} for note in self.notes]
+        return {'notes': notes_data}
 
     @classmethod
-    def load_from_file(cls, filename):
-        with open(filename, 'rb') as file:
-            return pickle.load(file)
+    def from_dict(cls, data):
+        notebook = cls()
+        notes_data = data.get('notes', [])
+        for note_data in notes_data:
+            note = Note(note_data['text'], note_data['tags'])
+            notebook.add_note(note)
+        return notebook
+    
+    # def save_to_file(self, filename):
+    #     with open(filename, 'wb') as file:
+    #         pickle.dump(self, file)
+
+    # @classmethod
+    # def load_from_file(cls, filename):
+    #     with open(filename, 'rb') as file:
+    #         return pickle.load(file)
+
+    def get_notes(self):
+        return self.notes
 
     def __str__(self):
         return "\n".join(str(note) for note in self.notes)
