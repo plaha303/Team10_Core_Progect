@@ -16,7 +16,7 @@ def input_error(func):
         except KeyError:
             return "Contact not found."
         except ValueError:
-            return "Invalid input. Please enter name and phone number separated by a space."
+            return "Invalid input. Please enter name or phone number." # LS -->  
         except IndexError:
             return "Invalid input. Please enter a command."
         except TypeError:
@@ -31,7 +31,7 @@ def hello():
 
 @input_error
 def add_contact():
-    name = Name(input("Enter the name: ").strip())
+    name = Name.validate(input("Enter the name: ").strip()) # LS -->  
 
     rec: Record = address_book.get(str(name))
     if rec:
