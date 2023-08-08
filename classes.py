@@ -3,7 +3,6 @@ from datetime import datetime
 import pickle
 import re
 
-
 class Field:
     def __init__(self, value=None):
         self._value = value
@@ -34,23 +33,23 @@ class Name(Field):
 
 
 class Phone(Field):
-    @staticmethod
-    def validate_phone(value):
+    
+    def validate_phone(self: str):
         correct = ("(", ")", "-", " ")
-        while len(value) != 0 or len(value) == 13 and value.startswith('+38'):
+        while len(self) != 0 or len(self) == 13 and self.startswith('+38'):
             for i in correct:
-                value = value.replace(i, "")
-            if len(value) == 13 and value.startswith('+38'):
-                return value
-            elif len(value) == 12 and value.startswith('38'):
-                value = f"+{value}"
-                return value
-            elif len(value) == 10 and value.startswith('0'):
-                value = f"+38{value}"
-                return value
+                self = self.replace(i, "")
+            if len(self) == 13 and self.startswith('+38'):
+                return self
+            elif len(self) == 12 and self.startswith('38'):
+                self = f"+{self}"
+                return self
+            elif len(self) == 10 and self.startswith('0'):
+                self = f"+38{self}"
+                return self
             else:
-                value = input("Invalid phone number. Please enter a new number: ")
-        return value
+                self = Phone.validate_phone(input("Invalid phone number. Please enter a new number: ").strip())  
+        return self
 
 
 class Birthday(Field):
@@ -71,27 +70,22 @@ class Address(Field):
 
 
 class Email(Field):
-    @staticmethod
-    def input_correct_email(value):
-        while len(value) != 0:
-            def analysis_email(email):
-                pattern = r"(^[a-zA-Z0-9_.+-]{2,}@([a-zA-Z0-9-]{2,}\
-                .[a-zA-Z0-9]+$|[a-zA-Z0-9-]{2,}\.[a-zA-Z0-9]+\.[a-zA-Z0-9]+$))"
-                return re.match(pattern, email) is not None
-            if analysis_email(value):
-                return f"Your email '{value} is correct'"
+    def input_correct_email(self):
+        while len(self) != 0:
+            def analize_email(self):
+                pattern = r"(^[a-zA-Z0-9_.+-]{2,}@([a-zA-Z0-9-]{2,}\.[a-zA-Z0-9]+$|[a-zA-Z0-9-]{2,}\.[a-zA-Z0-9]+\.[a-zA-Z0-9]+$))"
+                return re.match(pattern, self) is not None
+            if analize_email(self) == True:
+                return f"Good {self}"
             else:
-                value = input("Invalid e-mail address. Enter the email, or leave empty: ")
-            return value
-        return value
-
+                self = Email.input_correct_email(input("Invalid e-mail address. Enter the email, or leave empty: ")) #
+            return self
+        return self
 
 class Note:
-    def __init__(self, text, tag=None):
+    def __init__(self, text, tags=[]):
         self.text = text
-        self.tags = []
-        if tag:
-            self.tags.append(tag)
+        self.tags = tags
 
     def add_tag(self, tag):
         if tag not in self.tags:
@@ -102,7 +96,6 @@ class Note:
 
     def __eq__(self, other):
         return self.text == other.text
-
 
 class NoteBook:
     def __init__(self):
@@ -156,6 +149,15 @@ class NoteBook:
             note = Note(note_data['text'], note_data['tags'])
             notebook.add_note(note)
         return notebook
+    
+    # def save_to_file(self, filename):
+    #     with open(filename, 'wb') as file:
+    #         pickle.dump(self, file)
+
+    # @classmethod
+    # def load_from_file(cls, filename):
+    #     with open(filename, 'rb') as file:
+    #         return pickle.load(file)
 
     def get_notes(self):
         return self.notes
@@ -210,7 +212,7 @@ class Record:
 
     def edit_phone(self, old_phone, new_phone):
         for idx, p in enumerate(self.phones):
-            if old_phone == p:
+            if old_phone == p: # Leonid 
                 self.phones[idx] = new_phone
                 return f"old phone {old_phone} change to {new_phone}"
             return f"{old_phone} not present in phones of contact {self.name}"
