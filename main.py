@@ -3,8 +3,8 @@ import difflib
 import sort
 import re
 import json
-from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook, datetime
-from datetime import timedelta
+from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook
+
 
 address_book = AddressBook()
 notebook = NoteBook()
@@ -179,24 +179,19 @@ def show_birthday_within_days():
     except ValueError:
         return "Invalid input. Please enter a valid number of days."
 
-    today = datetime.now()
-    target_date = today + timedelta(days=days)
-    
     birthday_contacts = []
     for name, record in address_book.data.items():
-        if record.birthday:
-            birth_date = record.birthday.to_datetime().replace(year=today.year)
-            if birth_date.date() == target_date.date():
-                birthday_contacts.append(record)
+        if record.birthday and record.days_to_birthday() == days:
+            birthday_contacts.append(record)
 
     if birthday_contacts:
-        output = f"Contacts with birthdays {days} days from now ({target_date.strftime('%d.%m')}):\n\n"
+        output = f"Contacts with birthdays {days} days from now:\n\n"
         for contact in birthday_contacts:
             contact_info = f"Name: {contact.name}; Phones: {', '.join(str(phone) for phone in contact.phones)}; Birthday: {contact.birthday};"
             output += f"{contact_info}\n"
         return output
     else:
-        return f"No contacts have birthdays {days} days from now ({target_date.strftime('%d.%m')})."
+        return f"No contacts have birthdays {days} days from now."
 
 
 @input_error
