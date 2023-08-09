@@ -184,7 +184,8 @@ def show_all():
             phones_info = f"Phones: {', '.join(str(phone) for phone in record.phones)}"
             address_info = f"Address: {record.address.value}" if record.address else ""
             email_info = f"Email: {record.email.value}" if record.email else ""
-            print(f"Name: {record.name}  {phones_info}  {birthday_info}  {address_info}  {email_info}") # LS -->
+            print(f"Contact: {record.name}  {phones_info}  {birthday_info}  {address_info}  {email_info}") # LS -->
+
 
         print("\nPage:", page_number)
         print("Press Enter to see the next page or type 'exit' to return to the main menu.")
