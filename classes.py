@@ -77,7 +77,7 @@ class Email(Field):
                 pattern = r"(^[a-zA-Z0-9_.+-]{2,}@([a-zA-Z0-9-]{2,}\.[a-zA-Z0-9]+$|[a-zA-Z0-9-]{2,}\.[a-zA-Z0-9]+\.[a-zA-Z0-9]+$))"
                 return re.match(pattern, self) is not None
             if analize_email(self) == True:
-                return f"Good {self}"
+                return f"{self}"
             else:
                 self = Email.input_correct_email(input("Invalid e-mail address. Enter the email, or leave empty: ")) #
             return self
