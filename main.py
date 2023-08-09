@@ -30,30 +30,38 @@ def hello():
 
 @input_error
 def add_contact():
-    name = Name(input("Enter the name: ").strip())  # LS -->
+    while True:
+        name_input = input("Enter the name or type 'cancel' to cancel: ").strip()
+        if name_input.lower() == 'cancel':
+            return "Contact addition canceled."
 
-    rec: Record = address_book.get(str(name))
-    if rec:
-        return "Contact already exists. Use 'edit phone', 'edit birthday', etc., to modify the contact."
+        if name_input:
+            name = Name(name_input)  # LS -->
+            rec: Record = address_book.get(str(name))
 
-    phone_input = Phone(input("Enter the phone number: ").strip())
+            if rec:
+                return "Contact already exists. Use 'edit phone', 'edit birthday', etc., to modify the contact."
 
-    birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
-    while birthday_input and not Record.is_valid_birthday_format(birthday_input):
-        print("Incorrect birthday format. Please use the format DD.MM.YYYY.")
-        birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
+            phone_input = Phone(input("Enter the phone number: ").strip())
 
-    address_input = input("Enter the address, or leave empty: ")
-    email_input = Email.input_correct_email(input("Enter the email, or leave empty: "))
+            birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
+            while birthday_input and not Record.is_valid_birthday_format(birthday_input):
+                print("Incorrect birthday format. Please use the format DD.MM.YYYY.")
+                birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
 
-    phone = Phone(phone_input) if phone_input else None
-    birthday = Birthday(birthday_input) if birthday_input else None
-    address = Address(address_input) if address_input else None
-    email = Email(email_input) if email_input else None
+            address_input = input("Enter the address, or leave empty: ")
+            email_input = Email.input_correct_email(input("Enter the email, or leave empty: "))
 
-    rec = Record(name, phone, birthday, address, email)
-    address_book.add_record(rec)
-    return f"Contact '{name}' successfully added."
+            phone = Phone(phone_input) if phone_input else None
+            birthday = Birthday(birthday_input) if birthday_input else None
+            address = Address(address_input) if address_input else None
+            email = Email(email_input) if email_input else None
+
+            rec = Record(name, phone, birthday, address, email)
+            address_book.add_record(rec)
+            return f"Contact '{name}' successfully added."
+        else:
+            print("Name is required. Please enter a name.")
 
 
 def del_phone():
