@@ -3,6 +3,7 @@ from datetime import datetime
 import pickle
 import re
 
+
 class Field:
     def __init__(self, value=None):
         self._value = value
@@ -27,30 +28,29 @@ class Field:
 
 
 class Name(Field):
-    def validate(self): # LS -->
-        if not self or not isinstance(self, str): # LS -->
+    def validate(self, value):  # LS -->
+        if not value or not isinstance(value, str):  # LS -->
             raise ValueError("The name must be a non-empty string.")
-        return self  # LS -->
 
 
 class Phone(Field):
     
-    def validate_phone(self: str):
+    def validate_phone(self, value: str):
         correct = ("(", ")", "-", " ")
-        while len(self) != 0 or len(self) == 13 and self.startswith('+380'):
+        while len(value) != 0 or len(value) == 13 and self.value.startswith('+380'):
             for i in correct:
-                self = self.replace(i, "")
-            if len(self) == 13 and self.startswith('+380'):
-                return self
-            elif len(self) == 12 and self.startswith('380'):
-                self = f"+{self}"
-                return self
-            elif len(self) == 10 and self.startswith('0'):
-                self = f"+38{self}"
-                return self
+                value = self.value.replace(i, "")
+            if len(value) == 13 and self.value.startswith('+380'):
+                return value
+            elif len(value) == 12 and self.value.startswith('380'):
+                value = f"+{value}"
+                return value
+            elif len(value) == 10 and self.value.startswith('0'):
+                value = f"+38{value}"
+                return value
             else:
-                self = Phone.validate_phone(input("Invalid phone number. Please enter a new number: ").strip())  
-        return self
+                value = input("Invalid phone number. Please enter a new number: ").strip()
+        return value
 
 
 class Birthday(Field):
@@ -71,17 +71,20 @@ class Address(Field):
 
 
 class Email(Field):
-    def input_correct_email(self):
-        while len(self) != 0:
-            def analize_email(self):
-                pattern = r"(^[a-zA-Z0-9_.+-]{2,}@([a-zA-Z0-9-]{2,}\.[a-zA-Z0-9]+$|[a-zA-Z0-9-]{2,}\.[a-zA-Z0-9]+\.[a-zA-Z0-9]+$))"
-                return re.match(pattern, self) is not None
-            if analize_email(self) == True:
-                return f"{self}"
+    @staticmethod
+    def input_correct_email(value):
+        while len(value) != 0:
+            def analyze_email(email):
+                pattern = r"(^[a-zA-Z0-9_.+-]{2,}@([a-zA-Z0-9-]{2,}\." \
+                          r"[a-zA-Z0-9]+$|[a-zA-Z0-9-]{2,}\.[a-zA-Z0-9]+\.[a-zA-Z0-9]+$))"
+                return re.match(pattern, email) is not None
+            if analyze_email(value):
+                return f"Your email '{value}' is correct"
             else:
-                self = Email.input_correct_email(input("Invalid e-mail address. Enter the email, or leave empty: ")) #
-            return self
-        return self
+                value = input("Invalid e-mail address. Enter the email, or leave empty: ")
+            return value
+        return value
+
 
 class Note:
     def __init__(self, text, tags=None):
@@ -98,6 +101,7 @@ class Note:
     def __eq__(self, other):
         return self.text == other.text
 
+
 class NoteBook:
     def __init__(self):
         self.notes = []
@@ -106,10 +110,10 @@ class NoteBook:
         self.notes.append(note)
 
     def get_note_by_text(self, text):
-            for note in self.notes:
-                if note.text == text:
-                    return note
-            return None
+        for note in self.notes:
+            if note.text == text:
+                return note
+        return None
     
     def add_tag_to_note(self, text, tag):
         note_found = False  # Доданий флаг для перевірки, чи знайдена нотатка з введеним текстом
@@ -159,13 +163,7 @@ class NoteBook:
             note = Note(note_data['text'], note_data['tags'])
             notebook.add_note(note)
         return notebook
-    
-    def get_note_by_text(self, text):
-        for note in self.notes:
-            if note.text == text:
-                return note
-        return None
-    
+
     # def save_to_file(self, filename):
     #     with open(filename, 'wb') as file:
     #         pickle.dump(self, file)
@@ -228,8 +226,8 @@ class Record:
 
     def edit_phone(self, old_phone, new_phone):
         for idx, p in enumerate(self.phones):
-            if old_phone == p.value: # LS -->
-                self.phones[idx].value = new_phone # LS -->
+            if old_phone == p.value:  # LS -->
+                self.phones[idx].value = new_phone  # LS -->
                 return f"old phone {old_phone} change to {new_phone}"
             return f"{old_phone} not present in phones of contact {self.name}"
 
