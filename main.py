@@ -42,7 +42,12 @@ def add_contact():
             if rec:
                 return "Contact already exists. Use 'edit phone', 'edit birthday', etc., to modify the contact."
 
-            phone_input = Phone(input("Enter the phone number: ").strip())
+            phone_input = input("Enter the phone number: ").strip()
+            if phone_input:
+                phone_input = Phone.validate_phone(phone_input)
+                while not phone_input:
+                    phone_input = input("Enter the phone number: ").strip()
+                    phone_input = Phone.validate_phone(phone_input)
 
             birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
             while birthday_input and not Record.is_valid_birthday_format(birthday_input):

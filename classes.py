@@ -34,23 +34,23 @@ class Name(Field):
 
 
 class Phone(Field):
-    
-    def validate_phone(self, value: str):
+    @staticmethod
+    def validate_phone(value: str):
         correct = ("(", ")", "-", " ")
-        while len(value) != 0 or len(value) == 13 and self.value.startswith('+380'):
-            for i in correct:
-                value = self.value.replace(i, "")
-            if len(value) == 13 and self.value.startswith('+380'):
-                return value
-            elif len(value) == 12 and self.value.startswith('380'):
-                value = f"+{value}"
-                return value
-            elif len(value) == 10 and self.value.startswith('0'):
-                value = f"+38{value}"
-                return value
-            else:
-                value = input("Invalid phone number. Please enter a new number: ").strip()
-        return value
+        format_value = value
+        for i in correct:
+            format_value = format_value.replace(i, "")
+        if len(format_value) == 13 and format_value.startswith('+380'):
+            return format_value
+        elif len(format_value) == 12 and format_value.startswith('380'):
+            return f"+{format_value}"
+        elif len(format_value) == 11 and value.startswith('80'):
+            return f"+3{format_value}"
+        elif len(format_value) == 10 and format_value.startswith('0'):
+            return f"+38{format_value}"
+        else:
+            print("Invalid phone number. Please enter a new number.")
+            return f'Number {format_value} is not correct'
 
 
 class Birthday(Field):
