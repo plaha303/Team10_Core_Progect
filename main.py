@@ -1,7 +1,6 @@
 import pickle
 import difflib
 import sort
-import re
 import json
 from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook
 
@@ -16,7 +15,7 @@ def input_error(func):
         except KeyError:
             return "Contact not found."
         except ValueError:
-            return "Invalid input. Please enter name or phone number." # LS -->  
+            return "Invalid input. Please enter name or phone number."  # LS -->
         except IndexError:
             return "Invalid input. Please enter a command."
         except TypeError:
@@ -31,13 +30,13 @@ def hello():
 
 @input_error
 def add_contact():
-    name = Name.validate(input("Enter the name: ").strip()) # LS -->  
+    name = Name(input("Enter the name: ").strip())  # LS -->
 
     rec: Record = address_book.get(str(name))
     if rec:
         return "Contact already exists. Use 'edit phone', 'edit birthday', etc., to modify the contact."
 
-    phone_input = Phone.validate_phone(input("Enter the phone number: ").strip())
+    phone_input = Phone(input("Enter the phone number: ").strip())
 
     birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
     while birthday_input and not Record.is_valid_birthday_format(birthday_input):
@@ -45,7 +44,7 @@ def add_contact():
         birthday_input = input("Enter birthday in format 'DD.MM.YYYY' (or leave empty if not available): ")
 
     address_input = input("Enter the address, or leave empty: ")
-    email_input = Email.input_correct_email(input("Enter the email, or leave empty: ")) # LS --> Обрізка випадкових пробілів на початку та в кінці
+    email_input = Email.input_correct_email(input("Enter the email, or leave empty: "))
 
     phone = Phone(phone_input) if phone_input else None
     birthday = Birthday(birthday_input) if birthday_input else None
@@ -59,10 +58,10 @@ def add_contact():
 
 def del_phone():
     name = Name(input("Enter the name: "))
-    phone = Phone.validate_phone(input("Enter the phone number: ").strip())
+    phone = Phone(input("Enter the phone number: ").strip())
     rec: Record = address_book.get(str(name))
     if rec:
-        rec.del_phone(Phone(phone)) # LS -->
+        rec.del_phone(Phone(phone))  # LS -->
         return f"The phone number '{phone}' has been removed from the contact '{name}'."
     return f"No contact '{name}' in address book"
 
@@ -72,7 +71,7 @@ def add_phone():
     name = Name(input("Enter the name: ").strip())
     rec: Record = address_book.get(str(name))
     if rec:
-        phone_input = Phone.validate_phone(input("Enter the phone number: ").strip())
+        phone_input = Phone(input("Enter the phone number: ").strip())
 
         new_phone = Phone(phone_input)
         rec.add_phone(new_phone)
@@ -85,7 +84,7 @@ def edit_phone():
     name = Name(input("Enter the name: ").strip())
     rec: Record = address_book.get(str(name))
     if rec:
-        phone_input = Phone.validate_phone(input("Enter the phone number: ").strip())
+        phone_input = Phone(input("Enter the phone number: ").strip())
 
         new_phone = Phone(phone_input)
         rec.add_phone(new_phone)
@@ -96,8 +95,8 @@ def edit_phone():
 @input_error
 def change_phone():
     name = Name(input("Enter the name: ").strip())
-    old_phone = Phone.validate_phone(input("Enter the old phone number: ").strip())
-    new_phone = Phone.validate_phone(input("Enter the new phone number: ").strip())
+    old_phone = Phone(input("Enter the old phone number: ").strip())
+    new_phone = Phone(input("Enter the new phone number: ").strip())
 
     rec: Record = address_book.get(str(name))
     if rec:
@@ -144,7 +143,6 @@ def edit_birthday():
     return f"No contact '{name}' in address book"
 
 
-
 def show_birthday_within_days():
     try:
         days = int(input("Enter the number of days to check: "))
@@ -180,12 +178,11 @@ def show_all():
             break
 
         for record in records_batch:
-            birthday_info = f"birthday: {record.birthday.value};" if record.birthday else "" # LS -->
-            phones_info = f"phones: {' / '.join(str(phone) for phone in record.phones)};" if record.phones else "" # LS -->
-            address_info = f"address: {record.address.value};" if record.address else "" # LS -->
-            email_info = f"email: {record.email.value}." if record.email else "" # LS -->
-            print(f"Contact: name '{record.name}' {phones_info} {birthday_info} {address_info} {email_info}") # LS -->
-
+            birthday_info = f"birthday: {record.birthday.value};" if record.birthday else ""  # LS -->
+            phones_info = f"phones: {' / '.join(str(phone) for phone in record.phones)};" if record.phones else ""
+            address_info = f"address: {record.address.value};" if record.address else ""  # LS -->
+            email_info = f"email: {record.email.value}." if record.email else ""  # LS -->
+            print(f"Contact: name '{record.name}' {phones_info} {birthday_info} {address_info} {email_info}")  # LS -->
 
         print("\nPage:", page_number)
         print("Press Enter to see the next page or type 'exit' to return to the main menu.\n")
@@ -226,6 +223,7 @@ def add_note():
     notebook.add_note(note)
     return f"Note '{text}' added."
 
+
 @input_error
 def add_tag():
     attempts = 0
@@ -245,8 +243,6 @@ def add_tag():
     notebook.add_tag_to_note(note_text, tag)
     result = f"Tag '{tag}' added to note with text '{note_text}'."
     return result
-
-
 
 
 def change_note():
@@ -288,7 +284,8 @@ def search_note():
         notes_with_word = notebook.search_notes_by_word(search_word)
         
         if len(notes_with_word) == 0:
-            print(f"No notes found containing the word '{search_word}'. Please try again or type 'exit' to search by tag.")
+            print(f"No notes found containing the word '{search_word}'."
+                  f" Please try again or type 'exit' to search by tag.")
         else:
             result = []
             for note in notes_with_word:
@@ -309,6 +306,7 @@ def show_notes():
             result.append(str(note))
     
     return "\n\n".join(result)
+
 
 def helper():
     commands = {
