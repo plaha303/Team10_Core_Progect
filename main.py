@@ -180,11 +180,11 @@ def show_all():
             break
 
         for record in records_batch:
-            birthday_info = f"Birthday: {record.birthday.value}" if record.birthday else ""
-            phones_info = f"Phones: {', '.join(str(phone) for phone in record.phones)}"
-            address_info = f"Address: {record.address.value}" if record.address else ""
-            email_info = f"Email: {record.email.value}" if record.email else ""
-            print(f"Contact: {record.name}  {phones_info}  {birthday_info}  {address_info}  {email_info}") # LS -->
+            birthday_info = f"birthday: {record.birthday.value}" if record.birthday else ""
+            phones_info = f"phones: {', '.join(str(phone) for phone in record.phones)}"
+            address_info = f"address: {record.address.value}" if record.address else ""
+            email_info = f"email: {record.email.value}" if record.email else ""
+            print(f"Contact: name '{record.name}'  {phones_info}  {birthday_info}  {address_info}  {email_info}") # LS -->
 
 
         print("\nPage:", page_number)
