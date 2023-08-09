@@ -30,6 +30,7 @@ class Name(Field):
     def validate(self): # LS -->
         if not self or not isinstance(self, str): # LS -->
             raise ValueError("The name must be a non-empty string.")
+        return self  # LS -->
 
 
 class Phone(Field):
