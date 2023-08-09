@@ -37,12 +37,12 @@ class Phone(Field):
     
     def validate_phone(self: str):
         correct = ("(", ")", "-", " ")
-        while len(self) != 0 or len(self) == 13 and self.startswith('+38'):
+        while len(self) != 0 or len(self) == 13 and self.startswith('+380'):
             for i in correct:
                 self = self.replace(i, "")
-            if len(self) == 13 and self.startswith('+38'):
+            if len(self) == 13 and self.startswith('+380'):
                 return self
-            elif len(self) == 12 and self.startswith('38'):
+            elif len(self) == 12 and self.startswith('380'):
                 self = f"+{self}"
                 return self
             elif len(self) == 10 and self.startswith('0'):
