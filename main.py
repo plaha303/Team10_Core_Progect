@@ -261,18 +261,53 @@ def add_tag():
                 print("Invalid choice. Please enter a valid number.")
 
 
-
+@input_error
 def change_note():
-    text = input("Enter the note text: ")
-    new_text = input("Enter the new note text: ")
-    result = notebook.edit_note(text, new_text)
-    return result
+    while True:
+        note_query = input("Enter a keyword to search for notes: ")
+        matching_notes = notebook.search_notes_by_word(note_query)
+        
+        if not matching_notes:
+            print(f"No notes found for the given keyword. Please try again.")
+        else:
+            print("Matching notes:")
+            for i, note in enumerate(matching_notes, start=1):
+                print(f"{i}. {note.text}")
+            choice = input("Enter the number of the note to edit: ")
+            
+            if choice.isdigit() and 1 <= int(choice) <= len(matching_notes):
+                selected_note = matching_notes[int(choice) - 1]
+                new_text = input("Enter the new text for the note: ")
+                result = notebook.edit_note(selected_note.text, new_text)
+                print(result)
+                break
+            else:
+                print("Invalid choice. Please enter a valid number.")
 
 
+
+@input_error
 def del_note():
-    text = input("Enter the note text: ")
-    result = notebook.delete_note_by_text(text)
-    return result
+    while True:
+        note_query = input("Enter a keyword to search for notes: ")
+        matching_notes = notebook.search_notes_by_word(note_query)
+        
+        if not matching_notes:
+            print(f"No notes found for the given keyword. Please try again.")
+        else:
+            print("Matching notes:")
+            for i, note in enumerate(matching_notes, start=1):
+                print(f"{i}. {note.text}")
+            choice = input("Enter the number of the note to delete: ")
+            
+            if choice.isdigit() and 1 <= int(choice) <= len(matching_notes):
+                selected_note = matching_notes[int(choice) - 1]
+                result = notebook.delete_note_by_text(selected_note.text)
+                print(result)
+                break
+            else:
+                print("Invalid choice. Please enter a valid number.")
+
 
 
 @input_error
