@@ -176,15 +176,6 @@ class NoteBook:
             notebook.add_note(note)
         return notebook
 
-    # def save_to_file(self, filename):
-    #     with open(filename, 'wb') as file:
-    #         pickle.dump(self, file)
-
-    # @classmethod
-    # def load_from_file(cls, filename):
-    #     with open(filename, 'rb') as file:
-    #         return pickle.load(file)
-
     def get_notes(self):
         return self.notes
 
