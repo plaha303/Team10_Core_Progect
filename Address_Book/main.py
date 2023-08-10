@@ -1,8 +1,8 @@
 import pickle
 import difflib
-import sort
+from Address_Book import sort
 import json
-from classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook
+from Address_Book.classes import AddressBook, Name, Phone, Record, Birthday, Address, Email, Note, NoteBook
 
 address_book = AddressBook()
 notebook = NoteBook()

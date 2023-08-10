@@ -1,0 +1,3 @@
+[buil-sistem]
+requires = ['setuptools']
+build-backand = "setuptools.build_meta"
