@@ -239,23 +239,27 @@ def add_note():
 
 @input_error
 def add_tag():
-    attempts = 0
-    while attempts < 3:
-        note_text = input("Enter the note text: ")
-        note = notebook.get_note_by_text(note_text)
-        if note is None:
-            attempts += 1
-            print(f"Note with text '{note_text}' not found. Please try again.")
+    while True:
+        note_query = input("Enter a keyword to search for notes: ")
+        matching_notes = notebook.search_notes_by_word(note_query)
+        
+        if not matching_notes:
+            print(f"No notes found for the given keyword. Please try again.")
         else:
-            break
-    else:
-        print("Failed to find the note. Exiting tag addition.")
-        return
+            print("Matching notes:")
+            for i, note in enumerate(matching_notes, start=1):
+                print(f"{i}. {note.text}")
+            choice = input("Enter the number of the note to add a tag to: ")
+            
+            if choice.isdigit() and 1 <= int(choice) <= len(matching_notes):
+                selected_note = matching_notes[int(choice) - 1]
+                tag = input("Enter the tag: ")
+                result = notebook.add_tag_to_note(selected_note.text, tag)
+                print(result)
+                break
+            else:
+                print("Invalid choice. Please enter a valid number.")
 
-    tag = input("Enter the tag: ")
-    notebook.add_tag_to_note(note_text, tag)
-    result = f"Tag '{tag}' added to note with text '{note_text}'."
-    return result
 
 
 def change_note():

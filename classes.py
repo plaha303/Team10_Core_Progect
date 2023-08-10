@@ -108,6 +108,28 @@ class NoteBook:
 
     def add_note(self, note):
         self.notes.append(note)
+    
+    def add_tag_to_note(self, word, tag):
+        matching_notes = self.search_notes_by_word(word)
+        
+        if not matching_notes:
+            return f"No notes found for the given keyword '{word}'."
+        
+        if len(matching_notes) == 1:
+            note = matching_notes[0]
+            note.add_tag(tag)
+            return f"Tag '{tag}' added to note with text '{note.text}'."
+        
+        matching_notes_text = [f"{i}. {note.text}" for i, note in enumerate(matching_notes, start=1)]
+        notes_list = "\n".join(matching_notes_text)
+        choice = input(f"Select a note from the list by entering its number:\n{notes_list}\n")
+        
+        if choice.isdigit() and 1 <= int(choice) <= len(matching_notes):
+            note = matching_notes[int(choice) - 1]
+            note.add_tag(tag)
+            return f"Tag '{tag}' added to note with text '{note.text}'."
+        else:
+            return "Invalid choice. Tag not added."
 
     def get_note_by_text(self, text):
         for note in self.notes:
@@ -115,16 +137,6 @@ class NoteBook:
                 return note
         return None
     
-    def add_tag_to_note(self, text, tag):
-        note_found = False  # Доданий флаг для перевірки, чи знайдена нотатка з введеним текстом
-        for note in self.notes:
-            if text in note.text:
-                note_found = True
-                note.add_tag(tag)
-                return f"Tag '{tag}' added to note with text '{note.text}'."
-        if not note_found:
-            return f"Note starting with '{text}' not found."
-
     def delete_note_by_text(self, text):
         for note in self.notes:
             if note.text == text:
